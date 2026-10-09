@@ -1,0 +1,156 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  STUDENT
+  LECTURER
+  ADMIN
+}
+
+enum ComplaintStatus {
+  PENDING
+  UNDER_REVIEW
+  RESOLVED
+  REJECTED
+}
+
+enum AttendanceStatus {
+  PRESENT
+  LATE
+  ABSENT
+}
+
+model User {
+  id            String    @id @default(cuid())
+  email         String?   @unique
+  matricNumber  String?   @unique
+  passwordHash  String
+  fullName      String
+  role          Role      @default(STUDENT)
+  avatarUrl     String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  taughtCourses Course[]            @relation("LecturerCourses")
+  enrollments   CourseEnrollment[]
+  attendanceLogs AttendanceLog[]
+
+  filedComplaints    Complaint[]    @relation("FiledComplaints")
+  assignedComplaints Complaint[]    @relation("AssignedComplaints")
+
+  notifications Notification[]
+
+  @@index([role])
+}
+
+model Course {
+  id          String   @id @default(cuid())
+  code        String   @unique
+  title       String   @unique
+  description String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  lecturerId String?
+  lecturer   User?   @relation("LecturerCourses", fields: [lecturerId], references: [id], onDelete: SetNull)
+
+  enrollments        CourseEnrollment[]
+  attendanceSessions AttendanceSession[]
+  complaints         Complaint[]
+
+  @@index([lecturerId])
+}
+
+model CourseEnrollment {
+  id        String   @id @default(cuid())
+  studentId String
+  courseId  String
+  createdAt DateTime @default(now())
+
+  student User   @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  course  Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@unique([studentId, courseId])
+  @@index([studentId])
+  @@index([courseId])
+}
+
+model AttendanceSession {
+  id           String   @id @default(cuid())
+  courseId     String
+  isOpen       Boolean  @default(true)
+  latitude     Float
+  longitude    Float
+  radiusMeters Float    @default(100.0)
+  createdAt    DateTime @default(now())
+  closedAt     DateTime?
+
+  course Course          @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  logs   AttendanceLog[]
+
+  @@index([courseId])
+  @@index([isOpen])
+}
+
+model AttendanceLog {
+  id             String           @id @default(cuid())
+  sessionId      String
+  studentId      String
+  status         AttendanceStatus @default(PRESENT)
+  latitude       Float
+  longitude      Float
+  distanceMeters Float
+  markedAt       DateTime         @default(now())
+
+  session AttendanceSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  student User              @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@unique([sessionId, studentId])
+  @@index([sessionId])
+  @@index([studentId])
+}
+
+model Complaint {
+  id          String          @id @default(cuid())
+  title       String
+  description String
+  status      ComplaintStatus @default(PENDING)
+  response    String?
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  studentId    String
+  courseId     String?
+  assignedToId String?
+
+  student    User    @relation("FiledComplaints", fields: [studentId], references: [id], onDelete: Cascade)
+  course     Course? @relation(fields: [courseId], references: [id], onDelete: SetNull)
+  assignedTo User?   @relation("AssignedComplaints", fields: [assignedToId], references: [id], onDelete: SetNull)
+
+  @@index([studentId])
+  @@index([assignedToId])
+  @@index([courseId])
+  @@index([createdAt])
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  title     String
+  message   String
+  isRead    Boolean  @default(false)
+  linkUrl   String?
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([createdAt])
+}
