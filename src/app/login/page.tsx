@@ -3,6 +3,8 @@
 import { useState } from 'react';
 import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
+import Link from 'next/link';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -21,7 +23,6 @@ export default function LoginPage() {
 
     try {
       // 3. Call NextAuth's client-side signIn function
-      // This sends the email and password securely to our backend route handler ([...nextauth]/route.ts)
       const result = await signIn('credentials', {
         redirect: false, // Prevent automatic page reload so we can handle errors manually
         email,
@@ -33,83 +34,137 @@ export default function LoginPage() {
         setError(result.error); // Display the error message thrown by our backend
         setIsLoading(false);    // Turn off loading state
       } else {
-        // 5. Success! Authentication passed, session cookie is set. Redirect to dashboard.
+        // 5. Success! Redirect to dashboard.
         router.push('/dashboard');
         router.refresh();
       }
     } catch (err) {
-      // Catch any unexpected network or system errors
       setError('An unexpected error occurred. Please try again.');
       setIsLoading(false);
     }
   };
 
   return (
-    // Outer container matching ABUAD cream background aesthetic
-    <main className="min-h-screen flex items-center justify-center bg-[#FDFBF7] px-4">
-      <div className="max-w-md w-full bg-white rounded-2xl shadow-xl border border-stone-200 overflow-hidden p-8">
+    // Outer container matching the dark themed background wrapper and brightness of landing/signup
+    <main className="relative min-h-screen flex items-center justify-center px-4 py-8 overflow-hidden bg-stone-900 text-stone-100">
+      
+      {/* Background Image with Matched Opacity & Overlay */}
+      <div className="absolute inset-0 z-0">
+        <Image 
+          src="/ABUAD%20ATTENDANCE.jpg" 
+          alt="ABUAD Gate Background"
+          fill
+          sizes="100vw"
+          priority
+          className="object-cover opacity-90"
+        />
+        <div className="absolute inset-0 bg-black/40 backdrop-blur-[1px]" />
+      </div>
+
+      {/* Login Card Container matching the sign-up glassmorphism style proportions */}
+      <div 
+        className="relative z-10 max-w-lg w-full bg-black/50 backdrop-blur-md rounded-2xl shadow-2xl border border-white/15 p-8 md:p-10 my-6"
+        suppressHydrationWarning
+      >
         
-        {/* Header / Brand Logo Section */}
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-[#5A0B1B] text-white text-2xl font-bold mb-4 shadow-md">
-            AB
+        {/* Top Header Bar Inside Card */}
+        <div className="flex items-center space-x-3 pb-4 border-b border-white/10 mb-6">
+          <div className="relative w-10 h-10 rounded-full overflow-hidden border border-white/20 bg-white shadow-sm flex-shrink-0">
+            <Image 
+              src="/ABUAD%20LOGO.jpg" 
+              alt="ABUAD Logo"
+              fill
+              sizes="(max-width: 768px) 100vw, 40px"
+              className="object-cover"
+            />
           </div>
-          <h1 className="text-2xl font-bold text-stone-900">ABUAD Attendance</h1>
-          <p className="text-sm text-stone-500 mt-1">Sign in to access your portal</p>
+          <div>
+            <h2 className="text-sm font-bold text-white leading-tight">ABUAD</h2>
+            <p className="text-[11px] text-stone-300">Attendance Management System</p>
+          </div>
         </div>
 
-        {/* Dynamic Error Alert Banner (Only shows if there's an error) */}
+        {/* Section Title Block */}
+        <div className="mb-6">
+          <span className="text-[10px] font-bold tracking-widest text-stone-300 uppercase">
+            STUDENT PORTAL
+          </span>
+          <h1 className="text-2xl font-black text-white uppercase tracking-wide mt-1">
+            Sign In to Your Account
+          </h1>
+          <p className="text-xs text-stone-300 mt-1">
+            College of Medicine & Health Sciences
+          </p>
+        </div>
+
+        {/* Dynamic Error Alert Banner */}
         {error && (
-          <div className="mb-6 p-4 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm">
+          <div className="mb-4 p-3 rounded-lg bg-red-950/80 border border-red-500/50 text-red-200 text-xs font-medium">
             {error}
           </div>
         )}
 
         {/* Login Form */}
-        <form onSubmit={handleSubmit} className="space-y-5">
-          {/* Email Input Field */}
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Email / Matric Input Field */}
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-stone-600 mb-2">
-              Email Address
+            <label className="block text-xs font-semibold text-stone-200 mb-1">
+              Email
             </label>
             <input
-              type="email"
+              type="text"
               required
               value={email}
-              onChange={(e) => setEmail(e.target.value)} // Update email state on user keystroke
-              placeholder="e.g. student@abuad.edu.ng"
-              className="w-full px-4 py-3 rounded-lg border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#5A0B1B] focus:border-transparent text-stone-800 text-sm"
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="student@abuad.edu.ng"
+              className="w-full px-3.5 py-2.5 rounded-lg border border-white/20 focus:outline-none focus:ring-2 focus:ring-[#8B1E3F] text-stone-900 text-sm bg-white/95"
             />
           </div>
 
           {/* Password Input Field */}
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-stone-600 mb-2">
+            <label className="block text-xs font-semibold text-stone-200 mb-1">
               Password
             </label>
             <input
               type="password"
               required
               value={password}
-              onChange={(e) => setPassword(e.target.value)} // Update password state on user keystroke
+              onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
-              className="w-full px-4 py-3 rounded-lg border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#5A0B1B] focus:border-transparent text-stone-800 text-sm"
+              className="w-full px-3.5 py-2.5 rounded-lg border border-white/20 focus:outline-none focus:ring-2 focus:ring-[#8B1E3F] text-stone-900 text-sm bg-white/95"
             />
           </div>
 
-          {/* Submit Button with dynamic loading state */}
+          {/* Links Row: Forgot Password (Left) & Sign Up (Right) */}
+          <div className="flex justify-between items-center text-xs">
+            <a href="#forgot" className="text-stone-300 hover:text-white underline font-medium">
+              Forgot password?
+            </a>
+            <Link href="/signup" className="text-stone-200 hover:text-white font-bold underline">
+              Don't have an account? Sign up
+            </Link>
+          </div>
+
+          {/* Submit Button */}
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full py-3 px-4 bg-[#5A0B1B] hover:bg-[#450814] text-white font-medium rounded-lg transition-colors shadow-md text-sm disabled:opacity-50"
+            className="w-full py-3 px-4 bg-[#5A0B1B] hover:bg-[#7A1226] text-white font-bold text-sm tracking-wider uppercase rounded-lg shadow-xl hover:shadow-2xl transform hover:-translate-y-0.5 transition-all duration-200 border border-red-500/30 disabled:opacity-50 mt-2"
           >
-            {isLoading ? 'Signing in...' : 'Sign In'}
+            {isLoading ? 'Logging in...' : 'Login'}
           </button>
         </form>
 
-        {/* Footer Note */}
-        <div className="mt-8 text-center text-xs text-stone-400">
-          Afe Babalola University Ado-Ekiti • Secure Attendance Portal
+        {/* Footer Details */}
+        <div className="mt-8 pt-4 border-t border-white/10 flex justify-between items-center text-[10px] text-stone-300 font-medium">
+          <div>
+            Developed by <span className="font-bold text-white">OJO JOSHUA OLUWAPELUMI</span>
+          </div>
+          <div className="text-right">
+            Courtesy of the Dean,<br />
+            College of Medicine & Health Sciences, ABUAD
+          </div>
         </div>
 
       </div>
