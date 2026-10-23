@@ -138,9 +138,9 @@ export default function LoginPage() {
 
           {/* Links Row: Forgot Password (Left) & Sign Up (Right) */}
           <div className="flex justify-between items-center text-xs">
-            <a href="#forgot" className="text-stone-300 hover:text-white underline font-medium">
+            <Link href="/forgot-password" className="text-stone-300 hover:text-white underline font-medium">
               Forgot password?
-            </a>
+            </Link>
             <Link href="/signup" className="text-stone-200 hover:text-white font-bold underline">
               Don't have an account? Sign up
             </Link>

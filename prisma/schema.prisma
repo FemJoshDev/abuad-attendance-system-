@@ -27,15 +27,15 @@ enum AttendanceStatus {
 }
 
 model User {
-  id            String    @id @default(cuid())
-  email         String?   @unique
-  matricNumber  String?   @unique
-  passwordHash  String
-  fullName      String
-  role          Role      @default(STUDENT)
-  avatarUrl     String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  id           String    @id @default(cuid())
+  email        String?   @unique
+  matricNumber String?   @unique
+  passwordHash String
+  fullName     String
+  role         Role      @default(STUDENT)
+  avatarUrl    String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
 
   taughtCourses Course[]            @relation("LecturerCourses")
   enrollments   CourseEnrollment[]
@@ -153,4 +153,14 @@ model Notification {
 
   @@index([userId])
   @@index([createdAt])
+}
+
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  email     String
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([email])
 }
