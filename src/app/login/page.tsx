@@ -34,9 +34,9 @@ export default function LoginPage() {
         setError(result.error); // Display the error message thrown by our backend
         setIsLoading(false);    // Turn off loading state
       } else {
-        // 5. Success! Redirect to dashboard.
-        router.push('/dashboard');
-        router.refresh();
+        // Replace the login entry so Back does not return to the sign-in form.
+        // A refresh here would refresh the login route during navigation.
+        router.replace('/student/dashboard');
       }
     } catch (err) {
       setError('An unexpected error occurred. Please try again.');
@@ -58,7 +58,7 @@ export default function LoginPage() {
           priority
           className="object-cover opacity-90"
         />
-        <div className="absolute inset-0 bg-black/40 backdrop-blur-[1px]" />
+        <div className="absolute inset-0 bg-[#590018]/40 backdrop-blur-[1px]" />
       </div>
 
       {/* Login Card Container matching the sign-up glassmorphism style proportions */}

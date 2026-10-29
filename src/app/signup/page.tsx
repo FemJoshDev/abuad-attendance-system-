@@ -72,7 +72,7 @@ export default function SignUpPage() {
           priority
           className="object-cover opacity-90"
         />
-        <div className="absolute inset-0 bg-black/40 backdrop-blur-[1px]" />
+        <div className="absolute inset-0 bg-[#590018]/40 backdrop-blur-[1px]" />
       </div>
 
       {/* 2. Glassmorphism Card Container */}

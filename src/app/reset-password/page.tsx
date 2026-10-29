@@ -69,7 +69,7 @@ function ResetPasswordForm() {
             priority
             className="object-cover opacity-90"
           />
-          <div className="absolute inset-0 bg-black/40 backdrop-blur-[1px]" />
+          <div className="absolute inset-0 bg-[#590018]/40 backdrop-blur-[1px]" />
         </div>
         <div className="relative z-10 max-w-lg w-full bg-black/50 backdrop-blur-md rounded-2xl shadow-2xl border border-white/15 p-8 text-center">
           <h2 className="text-xl font-bold text-red-400 mb-2">Invalid Link</h2>
@@ -95,7 +95,7 @@ function ResetPasswordForm() {
           priority
           className="object-cover opacity-90"
         />
-        <div className="absolute inset-0 bg-black/40 backdrop-blur-[1px]" />
+        <div className="absolute inset-0 bg-[#590018]/40 backdrop-blur-[1px]" />
       </div>
 
       {/* Card Container */}
@@ -154,7 +154,8 @@ function ResetPasswordForm() {
             <input
               type="password"
               required
-              minLength={6}
+              minLength={6} 
+              suppressHydrationWarning
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
               placeholder="At least 6 characters"
@@ -170,6 +171,7 @@ function ResetPasswordForm() {
               type="password"
               required
               minLength={6}
+              suppressHydrationWarning
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               placeholder="Re-enter new password"
