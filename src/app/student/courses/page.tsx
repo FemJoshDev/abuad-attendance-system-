@@ -4,13 +4,14 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 
-// Full catalog of uploaded institutional courses
-const allAvailableCourses = [
+// Master departmental catalog uploaded by Admin
+const initialMasterCatalog = [
   { id: 1, code: 'MBBS 501', title: 'Anatomy V', semester: 'First Semester', lecturer: 'Dr. Ojo Oluwapelumi', units: 4, status: 'Enrolled', present: 18, total: 20 },
   { id: 2, code: 'MBBS 503', title: 'Physiology V', semester: 'First Semester', lecturer: 'Prof. Adebayo Johnson', units: 4, status: 'Enrolled', present: 15, total: 20 },
   { id: 3, code: 'MBBS 505', title: 'Biochemistry V', semester: 'First Semester', lecturer: 'Dr. Emeka Obi', units: 3, status: 'Enrolled', present: 13, total: 21 },
   { id: 4, code: 'MBBS 502', title: 'Pathology & Pharmacology', semester: 'Second Semester', lecturer: 'Dr. Sarah Jenkins', units: 4, status: 'Available', present: 0, total: 0 },
   { id: 5, code: 'MBBS 504', title: 'Community Medicine', semester: 'Second Semester', lecturer: 'Prof. Ahmed Bello', units: 3, status: 'Available', present: 0, total: 0 },
+  { id: 6, code: 'MBBS 507', title: 'Clinical Pharmacology Elective', semester: 'First Semester', lecturer: 'Dr. Tunde Fowler', units: 2, status: 'Available', present: 0, total: 0 },
 ];
 
 export default function StudentCoursesPage() {
@@ -20,14 +21,24 @@ export default function StudentCoursesPage() {
 
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedSemester, setSelectedSemester] = useState('First Semester');
-  const [selectedCourseDetail, setSelectedCourseDetail] = useState<typeof allAvailableCourses[0] | null>(null);
+  const [activeTab, setActiveTab] = useState<'enrolled' | 'catalog'>('enrolled');
+  const [coursesList, setCoursesList] = useState(initialMasterCatalog);
+  const [selectedCourseDetail, setSelectedCourseDetail] = useState<typeof initialMasterCatalog[0] | null>(null);
 
-  // Filter courses based on semester and search query
-  const filteredCourses = allAvailableCourses.filter((course) => {
+  // Toggle enrollment status (Select / Drop course)
+  const handleToggleEnrollment = (courseId: number, currentStatus: string) => {
+    const newStatus = currentStatus === 'Enrolled' ? 'Available' : 'Enrolled';
+    setCoursesList(prev => prev.map(c => c.id === courseId ? { ...c, status: newStatus } : c));
+    alert(newStatus === 'Enrolled' ? 'Successfully registered for course!' : 'Course dropped from your schedule.');
+  };
+
+  // Filter courses based on tab, semester, and search query
+  const filteredCourses = coursesList.filter((course) => {
+    const matchesTab = activeTab === 'enrolled' ? course.status === 'Enrolled' : true;
     const matchesSemester = course.semester === selectedSemester;
     const matchesSearch = course.code.toLowerCase().includes(searchQuery.toLowerCase()) || 
                           course.title.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesSemester && matchesSearch;
+    return matchesTab && matchesSemester && matchesSearch;
   });
 
   return (
@@ -54,10 +65,36 @@ export default function StudentCoursesPage() {
             <p className="mt-1 text-xs text-white/65">Student Portal</p>
           </div>
           <nav className="space-y-2 text-sm">
-            <button onClick={() => router.push('/student/dashboard')} className="w-full text-left rounded-md px-3 py-3 text-white/75 hover:bg-white/10 transition cursor-pointer">Dashboard</button>
-            <button onClick={() => router.push('/student/courses')} className="w-full text-left rounded-md bg-white/12 px-3 py-3 font-semibold cursor-pointer">My Courses</button>
-            <button onClick={() => router.push('/student/dashboard#attendance')} className="w-full text-left rounded-md px-3 py-3 text-white/75 hover:bg-white/10 transition cursor-pointer">Attendance History</button>
-            <button onClick={() => router.push('/student/dashboard#complaints')} className="w-full text-left rounded-md px-3 py-3 text-white/75 hover:bg-white/10 transition cursor-pointer">Complaints & Disputes</button>
+            <button
+              onClick={() => router.push('/student/dashboard#overview')}
+              className="w-full text-left rounded-md px-3 py-3 text-white/75 hover:bg-white/10 transition cursor-pointer"
+            >
+              Dashboard
+            </button>
+            <button
+              onClick={() => router.push('/student/courses')}
+              className="w-full text-left rounded-md bg-white/12 px-3 py-3 font-semibold cursor-pointer"
+            >
+              My Courses
+            </button>
+            <button
+              onClick={() => router.push('/student/attendance')}
+              className="w-full text-left rounded-md px-3 py-3 text-white/75 hover:bg-white/10 transition cursor-pointer"
+            >
+              Attendance History
+            </button>
+            <button
+              onClick={() => router.push('/student/complaints')}
+              className="w-full text-left rounded-md px-3 py-3 text-white/75 hover:bg-white/10 transition cursor-pointer"
+            >
+              Complaints &amp; Disputes
+            </button>
+            <button
+              onClick={() => router.push('/student/settings')}
+              className="w-full text-left rounded-md px-3 py-3 text-white/75 hover:bg-white/10 transition cursor-pointer"
+            >
+              Settings
+            </button>
           </nav>
           <button onClick={() => router.push('/login')} className="mt-auto rounded-md border border-white/25 px-3 py-2.5 text-left text-sm text-white/85 transition hover:bg-white/10 cursor-pointer">
             Sign out
@@ -70,8 +107,8 @@ export default function StudentCoursesPage() {
           {/* Top Header Bar */}
           <header className="flex min-h-[76px] items-center justify-between border-b border-[#e9e3d8] bg-white/90 backdrop-blur-md px-5 sm:px-8 lg:px-10 sticky top-0 z-10">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#8a6b67]">Course Catalog</p>
-              <h1 className="mt-1 text-lg font-semibold">Registered &amp; Departmental Courses</h1>
+              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#8a6b67]">Course Registration &amp; Selection</p>
+              <h1 className="mt-1 text-lg font-semibold">Manage Enrolled &amp; Catalog Courses</h1>
             </div>
             <div className="hidden text-right sm:block">
               <p className="text-sm font-semibold">{studentName}</p>
@@ -82,34 +119,49 @@ export default function StudentCoursesPage() {
           {/* Page Body */}
           <div className="mx-auto max-w-[1440px] px-5 py-7 sm:px-8 lg:px-10 space-y-8">
             
-            {/* Search and Semester Filter Controls */}
-            <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 bg-white/95 backdrop-blur-sm p-5 rounded-lg border border-[#ead9d5] shadow-sm">
-              <div className="flex-1">
+            {/* View Mode Tabs (Enrolled vs Catalog) & Semester Switcher */}
+            <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4 bg-white/95 backdrop-blur-sm p-5 rounded-lg border border-[#ead9d5] shadow-sm">
+              <div className="flex rounded-md bg-[#eeece4] p-1 text-sm">
+                <button 
+                  onClick={() => setActiveTab('enrolled')}
+                  className={`rounded px-4 py-2 font-semibold transition cursor-pointer ${activeTab === 'enrolled' ? 'bg-[#590018] text-white shadow-sm' : 'text-[#57494a] hover:bg-black/5'}`}
+                >
+                  My Enrolled Courses ({coursesList.filter(c => c.status === 'Enrolled').length})
+                </button>
+                <button 
+                  onClick={() => setActiveTab('catalog')}
+                  className={`rounded px-4 py-2 font-semibold transition cursor-pointer ${activeTab === 'catalog' ? 'bg-[#590018] text-white shadow-sm' : 'text-[#57494a] hover:bg-black/5'}`}
+                >
+                  Browse Master Catalog
+                </button>
+              </div>
+
+              <div className="flex items-center gap-3">
                 <input 
                   type="text"
-                  placeholder="Search by course code or title (e.g., MBBS 501)..."
+                  placeholder="Search courses..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full px-4 py-2.5 rounded-md border border-[#ead9d5] bg-[#fbf9f0] text-sm text-[#171717] focus:outline-none focus:ring-2 focus:ring-[#590018]"
+                  className="px-4 py-2 rounded-md border border-[#ead9d5] bg-[#fbf9f0] text-sm text-[#171717] focus:outline-none focus:ring-2 focus:ring-[#590018]"
                 />
-              </div>
-              <div className="flex rounded-md bg-[#eeece4] p-1 text-sm self-start md:self-auto">
-                <button 
-                  onClick={() => setSelectedSemester('First Semester')}
-                  className={`rounded px-4 py-2 font-semibold transition cursor-pointer ${selectedSemester === 'First Semester' ? 'bg-[#590018] text-white shadow-sm' : 'text-[#57494a] hover:bg-black/5'}`}
-                >
-                  First Semester
-                </button>
-                <button 
-                  onClick={() => setSelectedSemester('Second Semester')}
-                  className={`rounded px-4 py-2 font-semibold transition cursor-pointer ${selectedSemester === 'Second Semester' ? 'bg-[#590018] text-white shadow-sm' : 'text-[#57494a] hover:bg-black/5'}`}
-                >
-                  Second Semester
-                </button>
+                <div className="flex rounded-md bg-[#eeece4] p-1 text-sm">
+                  <button 
+                    onClick={() => setSelectedSemester('First Semester')}
+                    className={`rounded px-3 py-2 font-semibold transition cursor-pointer ${selectedSemester === 'First Semester' ? 'bg-[#590018] text-white shadow-sm' : 'text-[#57494a]'}`}
+                  >
+                    1st Sem
+                  </button>
+                  <button 
+                    onClick={() => setSelectedSemester('Second Semester')}
+                    className={`rounded px-3 py-2 font-semibold transition cursor-pointer ${selectedSemester === 'Second Semester' ? 'bg-[#590018] text-white shadow-sm' : 'text-[#57494a]'}`}
+                  >
+                    2nd Sem
+                  </button>
+                </div>
               </div>
             </div>
 
-            {/* Courses Catalog Grid */}
+            {/* Courses Grid */}
             <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
               {filteredCourses.map((course) => {
                 const percentage = course.total > 0 ? Math.round((course.present / course.total) * 100) : 0;
@@ -137,17 +189,33 @@ export default function StudentCoursesPage() {
                           <div className="h-[6px] overflow-hidden rounded-full bg-[#e9e7df]">
                             <div className="h-full rounded-full bg-cyan-800" style={{ width: `${percentage}%` }} />
                           </div>
+                          <button 
+                            onClick={() => alert(`Opening GPS geofence check-in scanner for ${course.code}...`)}
+                            className="w-full rounded-md bg-emerald-700 hover:bg-emerald-800 py-2 text-xs font-bold uppercase tracking-wider text-white transition shadow-sm cursor-pointer animate-pulse"
+                          >
+                            🔴 Check In Live Session
+                          </button>
                         </>
                       ) : (
-                        <p className="text-xs text-[#817874] italic">Departmental course pool entry.</p>
+                        <p className="text-xs text-[#817874] italic">Available from department catalog.</p>
                       )}
                       
-                      <button 
-                        onClick={() => setSelectedCourseDetail(course)}
-                        className="w-full mt-2 rounded-md bg-[#590018] hover:bg-[#70001f] py-2.5 text-xs font-bold uppercase tracking-wider text-white transition cursor-pointer"
-                      >
-                        View Course Details
-                      </button>
+                      <div className="flex gap-2">
+                        <button 
+                          onClick={() => handleToggleEnrollment(course.id, course.status)}
+                          className={`flex-1 rounded-md py-2 text-xs font-bold uppercase tracking-wider text-white transition cursor-pointer ${
+                            course.status === 'Enrolled' ? 'bg-rose-800 hover:bg-rose-900' : 'bg-[#650019] hover:bg-[#7b1730]'
+                          }`}
+                        >
+                          {course.status === 'Enrolled' ? 'Drop Course' : 'Register Course'}
+                        </button>
+                        <button 
+                          onClick={() => setSelectedCourseDetail(course)}
+                          className="rounded-md border border-[#ead9d5] px-3 py-2 text-xs font-semibold text-[#650019] hover:bg-[#fbf4f2] transition cursor-pointer"
+                        >
+                          Details
+                        </button>
+                      </div>
                     </div>
                   </article>
                 );
@@ -179,10 +247,21 @@ export default function StudentCoursesPage() {
                       <p><strong>Classes Attended:</strong> {selectedCourseDetail.present} out of {selectedCourseDetail.total} sessions recorded.</p>
                     )}
                   </div>
-                  <div className="pt-4 border-t border-[#ece6dd] flex justify-end">
+                  <div className="pt-4 border-t border-[#ece6dd] flex items-center justify-between">
+                    <button 
+                      onClick={() => {
+                        handleToggleEnrollment(selectedCourseDetail.id, selectedCourseDetail.status);
+                        setSelectedCourseDetail(null);
+                      }}
+                      className={`px-4 py-2 rounded-md text-xs font-bold uppercase tracking-wider text-white transition cursor-pointer ${
+                        selectedCourseDetail.status === 'Enrolled' ? 'bg-rose-800 hover:bg-rose-900' : 'bg-[#650019] hover:bg-[#7b1730]'
+                      }`}
+                    >
+                      {selectedCourseDetail.status === 'Enrolled' ? 'Drop Course' : 'Register Course'}
+                    </button>
                     <button 
                       onClick={() => setSelectedCourseDetail(null)}
-                      className="px-4 py-2 bg-[#590018] text-white rounded-md text-xs font-bold uppercase tracking-wider hover:bg-[#70001f] cursor-pointer"
+                      className="px-4 py-2 border border-[#ead9d5] text-[#650019] rounded-md text-xs font-bold uppercase tracking-wider hover:bg-[#fbf4f2] cursor-pointer"
                     >
                       Close
                     </button>

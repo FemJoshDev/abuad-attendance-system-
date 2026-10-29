@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
+import Link from 'next/link';
 
 // Sample data for enrolled courses and metrics
 const courses = [
@@ -79,11 +80,11 @@ export default function StudentDashboard() {
             <p className="mt-1 text-xs text-white/65">Student Portal</p>
           </div>
           <nav className="space-y-2 text-sm">
-            <a className="block rounded-md bg-white/12 px-3 py-3 font-semibold" href="#overview">Dashboard</a>
-            <a className="block rounded-md px-3 py-3 text-white/75 hover:bg-white/10 transition" href="#courses">My Courses</a>
-            <a className="block rounded-md px-3 py-3 text-white/75 hover:bg-white/10 transition" href="#attendance">Attendance History</a>
-            <a className="block rounded-md px-3 py-3 text-white/75 hover:bg-white/10 transition" href="#complaints">Complaints & Disputes</a>
-            <a className="block rounded-md px-3 py-3 text-white/75 hover:bg-white/10 transition" href="#profile">Settings</a>
+            <Link className="block rounded-md bg-white/12 px-3 py-3 font-semibold" href="/student/dashboard#overview">Dashboard</Link>
+            <Link className="block rounded-md px-3 py-3 text-white/75 hover:bg-white/10 transition" href="/student/courses">My Courses</Link>
+            <Link className="block rounded-md px-3 py-3 text-white/75 hover:bg-white/10 transition" href="/student/attendance">Attendance History</Link>
+            <Link className="block rounded-md px-3 py-3 text-white/75 hover:bg-white/10 transition" href="/student/complaints">Complaints &amp; Disputes</Link>
+            <Link className="block rounded-md px-3 py-3 text-white/75 hover:bg-white/10 transition" href="/student/settings">Settings</Link>
           </nav>
           <button onClick={() => router.push('/login')} className="mt-auto rounded-md border border-white/25 px-3 py-2.5 text-left text-sm text-white/85 transition hover:bg-white/10 cursor-pointer">
             Sign out
@@ -112,7 +113,7 @@ export default function StudentDashboard() {
             <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_310px]">
               
               {/* Overall Attendance Summary Card */}
-              <section id="overview" className="rounded-lg bg-[#590018] px-7 py-8 text-white shadow-sm sm:px-8">
+              <section id="overview" className="scroll-mt-24 rounded-lg bg-[#590018] px-7 py-8 text-white shadow-sm sm:px-8">
                 <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#f0c3ca]">Semester overview</p>
                 <h2 className="mt-3 text-2xl font-medium">Overall Attendance</h2>
                 <p className="mt-7 text-[76px] font-bold leading-none tracking-tight">82<span className="text-[38px] text-[#f2cf00]">%</span></p>
@@ -144,7 +145,7 @@ export default function StudentDashboard() {
             </div>
 
             {/* My Courses Section */}
-            <section id="courses" className="mt-12">
+            <section id="courses" className="mt-12 scroll-mt-24">
               <div className="mb-5 flex flex-wrap items-end justify-between gap-4">
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#9a7773]">Academic record</p>
@@ -183,7 +184,7 @@ export default function StudentDashboard() {
             </section>
 
             {/* Attendance History Table Section */}
-            <section id="attendance" className="mt-12 rounded-lg border border-[#ead9d5] bg-white/95 backdrop-blur-sm p-6 shadow-sm">
+            <section id="attendance" className="mt-12 scroll-mt-24 rounded-lg border border-[#ead9d5] bg-white/95 backdrop-blur-sm p-6 shadow-sm">
               <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#9a7773]">Attendance record</p>
               <h2 className="mb-5 mt-2 text-xl font-medium">Recent Attendance History</h2>
               <div className="overflow-x-auto">
@@ -215,7 +216,7 @@ export default function StudentDashboard() {
             </section>
 
             {/* Attendance Complaints & Disputes Desk */}
-            <section id="complaints" className="mt-12 rounded-lg border border-[#ead9d5] bg-white/95 backdrop-blur-sm p-6 shadow-sm">
+            <section id="complaints" className="mt-12 scroll-mt-24 rounded-lg border border-[#ead9d5] bg-white/95 backdrop-blur-sm p-6 shadow-sm">
               <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#9a7773]">Support Desk</p>
               <h2 className="mb-2 mt-2 text-xl font-medium">Log Attendance Complaint / Dispute</h2>
               <p className="text-xs text-[#746d68] mb-6">If you faced location geofence issues or system timeouts during a class, submit details below for administrative review.</p>
@@ -289,6 +290,21 @@ export default function StudentDashboard() {
                   </div>
                 </div>
               </div>
+            </section>
+
+            <section id="profile" className="mt-12 scroll-mt-24 rounded-lg border border-[#ead9d5] bg-white/95 backdrop-blur-sm p-6 shadow-sm">
+              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#9a7773]">Account</p>
+              <h2 className="mb-5 mt-2 text-xl font-medium">Student Profile &amp; Settings</h2>
+              <dl className="grid gap-4 text-sm sm:grid-cols-2">
+                <div>
+                  <dt className="text-xs font-semibold text-[#746d68]">Student name</dt>
+                  <dd className="mt-1 font-medium">{studentName}</dd>
+                </div>
+                <div>
+                  <dt className="text-xs font-semibold text-[#746d68]">Matric number</dt>
+                  <dd className="mt-1 font-medium">{matricNumber}</dd>
+                </div>
+              </dl>
             </section>
 
             {/* Footer */}
