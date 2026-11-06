@@ -14,9 +14,16 @@ model User {
   passwordHash       String
   fullName           String
   role               Role               @default(STUDENT)
+  
+  // Academic Profile Metadata
+  level              Level?             // Optional for LECTURER / ADMIN, required for STUDENT
+  department         String?            // e.g. "Medicine & Surgery"
+  college            String?            // e.g. "College of Medicine & Health Sciences"
+  
   avatarUrl          String?
   createdAt          DateTime           @default(now())
   updatedAt          DateTime           @updatedAt
+  
   attendanceLogs     AttendanceLog[]
   assignedComplaints Complaint[]        @relation("AssignedComplaints")
   filedComplaints    Complaint[]        @relation("FiledComplaints")
@@ -25,23 +32,33 @@ model User {
   notifications      Notification[]
 
   @@index([role])
+  @@index([level])
 }
 
 model Course {
   id                 String              @id @default(cuid())
-  code               String              @unique
-  title              String              @unique
+  code               String              @unique // e.g. "MBBS 501"
+  title              String              // e.g. "Anatomy V"
   description        String?
+  units              Int                 @default(3) // Credit units
+  
+  // Placement Filters
+  level              Level               @default(LEVEL_100)
+  semester           Semester            @default(FIRST)
+  department         String?             // e.g. "Medicine & Surgery"
+  
   isActive           Boolean             @default(true)
   createdAt          DateTime            @default(now())
   updatedAt          DateTime            @updatedAt
   lecturerId         String?
+  
   attendanceSessions AttendanceSession[]
   complaints         Complaint[]
   lecturer           User?               @relation("LecturerCourses", fields: [lecturerId], references: [id])
   enrollments        CourseEnrollment[]
 
   @@index([lecturerId])
+  @@index([level, semester])
 }
 
 model CourseEnrollment {
@@ -139,6 +156,20 @@ enum Role {
   STUDENT
   LECTURER
   ADMIN
+}
+
+enum Level {
+  LEVEL_100
+  LEVEL_200
+  LEVEL_300
+  LEVEL_400
+  LEVEL_500
+  LEVEL_600
+}
+
+enum Semester {
+  FIRST
+  SECOND
 }
 
 enum ComplaintStatus {

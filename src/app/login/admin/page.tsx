@@ -10,6 +10,7 @@ export default function AdminLoginPage() {
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false); // Toggle state for password visibility
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -41,7 +42,7 @@ export default function AdminLoginPage() {
   };
 
   return (
-    <main className="relative min-h-screen flex flex-col justify-between px-6 py-6 overflow-hidden bg-stone-900 text-stone-100">
+    <main className="relative min-h-screen flex flex-col justify-between px-3 sm:px-6 py-4 sm:py-6 overflow-x-hidden bg-stone-900 text-stone-100">
       
       {/* 1. Background Image Overlay */}
       <div className="absolute inset-0 z-0">
@@ -49,6 +50,7 @@ export default function AdminLoginPage() {
           src="/ABUAD%20ATTENDANCE.jpg" 
           alt="ABUAD Gate Background"
           fill
+          sizes="100vw"
           priority
           className="object-cover opacity-90"
         />
@@ -56,26 +58,27 @@ export default function AdminLoginPage() {
       </div>
 
       {/* 2. Top Navigation Bar */}
-      <header className="relative z-10 w-full max-w-7xl mx-auto flex items-center justify-between py-3 px-6 bg-black/30 backdrop-blur-md rounded-xl border border-white/10 shadow-lg">
-        <Link href="/" className="flex items-center space-x-3 group">
-          <div className="relative w-10 h-10 rounded-full overflow-hidden border border-white/20 bg-white shadow-sm">
+      <header className="relative z-10 w-full max-w-7xl mx-auto flex items-center justify-between py-2.5 sm:py-3 px-3 sm:px-6 bg-black/30 backdrop-blur-md rounded-xl border border-white/10 shadow-lg">
+        <Link href="/" className="flex items-center space-x-2.5 sm:space-x-3 group">
+          <div className="relative w-8 h-8 sm:w-10 sm:h-10 rounded-full overflow-hidden border border-white/20 bg-white shadow-sm shrink-0">
             <Image 
               src="/ABUAD%20LOGO.jpg" 
               alt="ABUAD Logo"
               fill
+              sizes="(max-width: 768px) 32px, 40px"
               className="object-cover"
             />
           </div>
           <div>
-            <h2 className="text-sm font-bold text-white leading-tight group-hover:text-stone-200 transition">ABUAD</h2>
-            <p className="text-[11px] text-stone-300">Admin Control Panel</p>
+            <h2 className="text-xs sm:text-sm font-bold text-white leading-tight group-hover:text-stone-200 transition">ABUAD</h2>
+            <p className="text-[10px] sm:text-[11px] text-stone-300">Admin Control Panel</p>
           </div>
         </Link>
 
         <div>
           <Link 
             href="/" 
-            className="px-4 py-2 text-xs font-semibold text-white bg-white/10 hover:bg-white/20 rounded-lg transition border border-white/20 backdrop-blur-sm"
+            className="px-2.5 sm:px-4 py-1.5 sm:py-2 text-[10px] sm:text-xs font-semibold text-white bg-white/10 hover:bg-white/20 rounded-lg transition border border-white/20 backdrop-blur-sm whitespace-nowrap"
           >
             ← Back Home
           </Link>
@@ -83,19 +86,19 @@ export default function AdminLoginPage() {
       </header>
 
       {/* 3. Central Login Form Card */}
-      <section className="relative z-10 flex flex-col items-center justify-center my-auto py-8 px-4">
+      <section className="relative z-10 flex flex-col items-center justify-center my-auto py-6 px-3 sm:px-4 w-full">
         <div 
-          className="w-full max-w-md bg-black/50 backdrop-blur-xl p-8 rounded-2xl shadow-2xl border border-white/15"
+          className="w-full max-w-md bg-black/50 backdrop-blur-xl p-6 sm:p-8 rounded-2xl shadow-2xl border border-white/15"
           suppressHydrationWarning
         >
-          <div className="text-center mb-6">
-            <span className="inline-block p-3 rounded-full bg-white/10 border border-white/20 text-2xl mb-2">
+          <div className="text-center mb-5 sm:mb-6">
+            <span className="inline-block p-2.5 sm:p-3 rounded-full bg-white/10 border border-white/20 text-xl sm:text-2xl mb-2">
               🛡️
             </span>
-            <h1 className="text-xl font-bold text-white uppercase tracking-wide">
+            <h1 className="text-lg sm:text-xl font-bold text-white uppercase tracking-wide">
               Administrator Sign In
             </h1>
-            <p className="text-xs text-stone-300 mt-1">
+            <p className="text-[11px] sm:text-xs text-stone-300 mt-1">
               Enter system administrator credentials
             </p>
           </div>
@@ -127,15 +130,24 @@ export default function AdminLoginPage() {
               <label className="block text-xs font-semibold text-stone-200 mb-1">
                 Password
               </label>
-              <input
-                type="password"
-                required
-                suppressHydrationWarning
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
-                className="w-full px-3.5 py-2.5 rounded-lg border border-white/20 focus:outline-none focus:ring-2 focus:ring-[#8B1E3F] text-stone-900 text-sm bg-white/95"
-              />
+              <div className="relative">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  required
+                  suppressHydrationWarning
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••"
+                  className="w-full px-3.5 py-2.5 pr-14 rounded-lg border border-white/20 focus:outline-none focus:ring-2 focus:ring-[#8B1E3F] text-stone-900 text-sm bg-white/95"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute inset-y-0 right-0 px-3.5 flex items-center text-xs font-semibold text-[#8B1E3F] hover:text-[#5A0B1B] cursor-pointer"
+                >
+                  {showPassword ? 'Hide' : 'Show'}
+                </button>
+              </div>
             </div>
 
             <div className="flex justify-between items-center text-xs">
@@ -159,11 +171,11 @@ export default function AdminLoginPage() {
       </section>
 
       {/* 4. Footer */}
-      <footer className="relative z-10 w-full max-w-7xl mx-auto pt-4 flex justify-between items-center text-[10px] text-stone-300 font-medium bg-black/40 backdrop-blur-md px-6 py-3 rounded-lg border border-white/10 shadow-lg">
+      <footer className="relative z-10 w-full max-w-7xl mx-auto pt-3 flex flex-col sm:flex-row justify-between items-center gap-2 text-[9px] sm:text-[10px] text-stone-300 font-medium bg-black/40 backdrop-blur-md px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg border border-white/10 shadow-lg text-center sm:text-left">
         <div>
           Developed by <span className="font-bold text-white">OJO JOSHUA OLUWAPELUMI</span>
         </div>
-        <div className="text-right">
+        <div className="text-center sm:text-right">
           Courtesy of the Dean,<br />
           College of Medicine & Health Sciences, ABUAD
         </div>

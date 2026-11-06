@@ -31,6 +31,9 @@ export default function StudentDashboard() {
   const studentName = 'Afe Babalola Student';
   const matricNumber = '20/ENG02/001';
 
+  // Mobile drawer state
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
   // Complaint Module State
   const [selectedCourse, setSelectedCourse] = useState('MBBS 501');
   const [complaintText, setComplaintText] = useState('');
@@ -73,7 +76,79 @@ export default function StudentDashboard() {
       </div>
 
       <div className="relative z-10">
-        {/* Fixed Burgundy Sidebar Navigation for Desktop */}
+        
+        {/* =========================================================
+            1. MOBILE TOP HEADER BAR (Visible only on small screens)
+           ========================================================= */}
+        <div className="flex lg:hidden items-center justify-between bg-[#570015] text-white px-5 py-4 sticky top-0 z-30 shadow-md">
+          <div className="flex items-center space-x-3">
+            <button 
+              onClick={() => setIsMobileMenuOpen(true)}
+              className="p-2 rounded-md bg-white/10 hover:bg-white/20 transition focus:outline-none cursor-pointer"
+              aria-label="Open Menu"
+            >
+              {/* Hamburger Icon */}
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </button>
+            <div>
+              <p className="text-sm font-bold tracking-wide">ABUAD Portal</p>
+              <p className="text-[10px] text-white/70">Student Navigation</p>
+            </div>
+          </div>
+          <div className="text-right">
+            <p className="text-xs font-semibold">{studentName}</p>
+          </div>
+        </div>
+
+        {/* =========================================================
+            2. MOBILE SLIDE-OUT MENU MODAL (Drawer)
+           ========================================================= */}
+        {isMobileMenuOpen && (
+          <div className="fixed inset-0 z-50 flex lg:hidden">
+            {/* Backdrop overlay */}
+            <div 
+              className="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity" 
+              onClick={() => setIsMobileMenuOpen(false)}
+            />
+            
+            {/* Drawer Content */}
+            <div className="relative w-[260px] bg-[#570015] px-5 py-7 text-white flex flex-col shadow-2xl z-10 animate-in slide-in-from-left duration-200">
+              <div className="flex items-center justify-between mb-10 border-b border-white/15 pb-4">
+                <div>
+                  <p className="text-lg font-bold tracking-wide">ABUAD</p>
+                  <p className="mt-0.5 text-xs text-white/65">Student Portal</p>
+                </div>
+                <button 
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="p-1 rounded-full hover:bg-white/10 text-white/80 hover:text-white text-xl font-bold cursor-pointer"
+                >
+                  &times;
+                </button>
+              </div>
+
+              <nav className="space-y-2 text-sm">
+                <button onClick={() => { router.push('/student/dashboard#overview'); setIsMobileMenuOpen(false); }} className="w-full text-left rounded-md bg-white/12 px-3 py-3 font-semibold cursor-pointer">Dashboard</button>
+                <button onClick={() => { router.push('/student/courses'); setIsMobileMenuOpen(false); }} className="w-full text-left rounded-md px-3 py-3 text-white/75 hover:bg-white/10 transition cursor-pointer">My Courses</button>
+                <button onClick={() => { router.push('/student/attendance'); setIsMobileMenuOpen(false); }} className="w-full text-left rounded-md px-3 py-3 text-white/75 hover:bg-white/10 transition cursor-pointer">Attendance History</button>
+                <button onClick={() => { router.push('/student/complaints'); setIsMobileMenuOpen(false); }} className="w-full text-left rounded-md px-3 py-3 text-white/75 hover:bg-white/10 transition cursor-pointer">Complaints &amp; Disputes</button>
+                <button onClick={() => { router.push('/student/settings'); setIsMobileMenuOpen(false); }} className="w-full text-left rounded-md px-3 py-3 text-white/75 hover:bg-white/10 transition cursor-pointer">Settings</button>
+              </nav>
+
+              <button 
+                onClick={() => router.push('/login')} 
+                className="mt-auto rounded-md border border-white/25 px-3 py-2.5 text-left text-sm text-white/85 transition hover:bg-white/10 cursor-pointer"
+              >
+                Sign out
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* =========================================================
+            3. DESKTOP FIXED SIDEBAR (Hidden on mobile, visible on lg+)
+           ========================================================= */}
         <aside className="fixed inset-y-0 left-0 z-20 hidden w-[205px] flex-col bg-[#570015] px-5 py-7 text-white lg:flex shadow-xl">
           <div className="mb-12 border-b border-white/15 pb-6">
             <p className="text-lg font-bold tracking-wide">ABUAD</p>
@@ -91,11 +166,13 @@ export default function StudentDashboard() {
           </button>
         </aside>
 
-        {/* Main Content Area Offset by Sidebar Width */}
+        {/* =========================================================
+            4. MAIN CONTENT AREA OFFSET BY SIDEBAR WIDTH
+           ========================================================= */}
         <div className="min-h-screen lg:ml-[205px]">
           
           {/* Top Header Bar */}
-          <header className="flex min-h-[76px] items-center justify-between border-b border-[#e9e3d8] bg-white/90 backdrop-blur-md px-5 sm:px-8 lg:px-10 sticky top-0 z-10">
+          <header className="hidden lg:flex min-h-[76px] items-center justify-between border-b border-[#e9e3d8] bg-white/90 backdrop-blur-md px-5 sm:px-8 lg:px-10 sticky top-0 z-10">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#8a6b67]">Student dashboard</p>
               <h1 className="mt-1 text-lg font-semibold">College of Medicine &amp; Health Sciences</h1>
@@ -187,23 +264,23 @@ export default function StudentDashboard() {
             <section id="attendance" className="mt-12 scroll-mt-24 rounded-lg border border-[#ead9d5] bg-white/95 backdrop-blur-sm p-6 shadow-sm">
               <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#9a7773]">Attendance record</p>
               <h2 className="mb-5 mt-2 text-xl font-medium">Recent Attendance History</h2>
-              <div className="overflow-x-auto">
+              <div className="w-full overflow-x-auto pb-2">
                 <table className="w-full min-w-[560px] text-left text-sm">
                   <thead>
                     <tr className="border-b border-[#ece6dd] text-[#766c68]">
-                      <th className="pb-3 font-semibold">Course Code</th>
-                      <th className="pb-3 font-semibold">Course Title</th>
-                      <th className="pb-3 font-semibold">Date</th>
-                      <th className="pb-3 text-right font-semibold">Status</th>
+                      <th className="pb-3 font-semibold whitespace-nowrap">Course Code</th>
+                      <th className="pb-3 font-semibold whitespace-nowrap">Course Title</th>
+                      <th className="pb-3 font-semibold whitespace-nowrap">Date</th>
+                      <th className="pb-3 text-right font-semibold whitespace-nowrap">Status</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-[#f0ece5]">
                     {attendanceHistory.map((log) => (
                       <tr key={log.id}>
-                        <td className="py-4 font-semibold text-[#650019]">{log.courseCode}</td>
-                        <td className="py-4">{log.courseTitle}</td>
-                        <td className="py-4 text-[#655d58]">{log.date}</td>
-                        <td className="py-4 text-right">
+                        <td className="py-4 font-semibold text-[#650019] whitespace-nowrap">{log.courseCode}</td>
+                        <td className="py-4 whitespace-nowrap">{log.courseTitle}</td>
+                        <td className="py-4 text-[#655d58] whitespace-nowrap">{log.date}</td>
+                        <td className="py-4 text-right whitespace-nowrap">
                           <span className={`rounded-full px-3 py-1 text-xs font-semibold ${log.status === 'Present' ? 'bg-emerald-50 text-emerald-800' : 'bg-amber-50 text-amber-800'}`}>
                             {log.status}
                           </span>
@@ -257,26 +334,26 @@ export default function StudentDashboard() {
                   </button>
                 </form>
 
-                {/* Complaint History Table */}
-                <div className="lg:col-span-2">
+                {/* Complaint History Table with Horizontal Scroll Fix */}
+                <div className="lg:col-span-2 overflow-hidden">
                   <h3 className="text-sm font-semibold text-[#650019] mb-3">Submitted Complaints History</h3>
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-left text-xs">
+                  <div className="w-full overflow-x-auto pb-2">
+                    <table className="w-full min-w-[560px] text-left text-xs">
                       <thead>
                         <tr className="border-b border-[#ece6dd] text-[#766c68]">
-                          <th className="pb-3 font-semibold">Course</th>
-                          <th className="pb-3 font-semibold">Issue Details</th>
-                          <th className="pb-3 font-semibold">Date Submitted</th>
-                          <th className="pb-3 text-right font-semibold">Status</th>
+                          <th className="pb-3 font-semibold whitespace-nowrap">Course</th>
+                          <th className="pb-3 font-semibold whitespace-nowrap">Issue Details</th>
+                          <th className="pb-3 font-semibold whitespace-nowrap">Date Submitted</th>
+                          <th className="pb-3 text-right font-semibold whitespace-nowrap">Status</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-[#f0ece5]">
                         {complaintsList.map((comp) => (
                           <tr key={comp.id}>
-                            <td className="py-3.5 font-semibold text-[#650019]">{comp.course}</td>
-                            <td className="py-3.5 text-[#514949] max-w-xs">{comp.issue}</td>
-                            <td className="py-3.5 text-[#655d58]">{comp.date}</td>
-                            <td className="py-3.5 text-right">
+                            <td className="py-3.5 font-semibold text-[#650019] whitespace-nowrap">{comp.course}</td>
+                            <td className="py-3.5 text-[#514949] max-w-[200px] truncate">{comp.issue}</td>
+                            <td className="py-3.5 text-[#655d58] whitespace-nowrap">{comp.date}</td>
+                            <td className="py-3.5 text-right whitespace-nowrap">
                               <span className={`rounded-full px-2.5 py-1 text-[10px] font-semibold ${
                                 comp.status === 'Resolved' ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' : 'bg-amber-50 text-amber-800 border border-amber-200'
                               }`}>

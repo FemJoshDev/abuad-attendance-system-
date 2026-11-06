@@ -12,6 +12,9 @@ export default function SignUpPage() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [matricNumber, setMatricNumber] = useState('');
+  const [level, setLevel] = useState('LEVEL_500');
+  const [department, setDepartment] = useState('Medicine & Surgery');
+  const [college] = useState('College of Medicine & Health Sciences');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
 
@@ -40,6 +43,9 @@ export default function SignUpPage() {
           name,
           email,
           matricNumber,
+          level,
+          department,
+          college,
           password,
           confirmPassword,
         }),
@@ -162,6 +168,41 @@ export default function SignUpPage() {
             />
           </div>
 
+          {/* Grid Row for Academic Level & Department */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-semibold text-stone-200 mb-1">
+                Academic Level
+              </label>
+              <select
+                value={level}
+                onChange={(e) => setLevel(e.target.value)}
+                className="w-full px-3.5 py-2.5 rounded-lg border border-white/20 focus:outline-none focus:ring-2 focus:ring-[#8B1E3F] text-stone-900 text-sm bg-white/95 font-medium"
+              >
+                <option value="LEVEL_100">100 Level</option>
+                <option value="LEVEL_200">200 Level</option>
+                <option value="LEVEL_300">300 Level</option>
+                <option value="LEVEL_400">400 Level</option>
+                <option value="LEVEL_500">500 Level</option>
+                <option value="LEVEL_600">600 Level</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-stone-200 mb-1">
+                Department
+              </label>
+              <input
+                type="text"
+                required
+                value={department}
+                onChange={(e) => setDepartment(e.target.value)}
+                placeholder="Medicine & Surgery"
+                className="w-full px-3.5 py-2.5 rounded-lg border border-white/20 focus:outline-none focus:ring-2 focus:ring-[#8B1E3F] text-stone-900 text-sm bg-white/95"
+              />
+            </div>
+          </div>
+
           {/* Password Field */}
           <div>
             <label className="block text-xs font-semibold text-stone-200 mb-1">
@@ -196,7 +237,7 @@ export default function SignUpPage() {
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full py-3 px-4 bg-[#5A0B1B] hover:bg-[#7A1226] text-white font-bold text-sm tracking-wider uppercase rounded-lg shadow-xl hover:shadow-2xl transform hover:-translate-y-0.5 transition-all duration-200 border border-red-500/30 disabled:opacity-50 mt-2"
+            className="w-full py-3 px-4 bg-[#5A0B1B] hover:bg-[#7A1226] text-white font-bold text-sm tracking-wider uppercase rounded-lg shadow-xl hover:shadow-2xl transform hover:-translate-y-0.5 transition-all duration-200 border border-red-500/30 disabled:opacity-50 mt-2 cursor-pointer"
           >
             {isLoading ? 'Creating Account...' : 'Sign Up'}
           </button>
