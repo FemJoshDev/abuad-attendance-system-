@@ -1,7 +1,9 @@
+// src/app/lecturer/dashboard/page.tsx
 'use client';
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 const assignedCourses = [
   { id: 1, code: 'CSC 401', title: 'Software Engineering Principles', studentsEnrolled: 45 },
@@ -12,7 +14,7 @@ export default function LecturerDashboard() {
   const router = useRouter();
   const lecturerName = 'Dr. Ojo Oluwapelumi';
   const lecturerEmail = 'lecturer@abuad.edu.ng';
-  
+
   const [activeCourse, setActiveCourse] = useState<string | null>(null);
   const [sessionCode, setSessionCode] = useState<string | null>(null);
   const [radiusMeters, setRadiusMeters] = useState(50);
@@ -29,14 +31,14 @@ export default function LecturerDashboard() {
   };
 
   return (
-    <main className="relative min-h-screen bg-[#fbf9f0] text-[#171717] overflow-x-hidden">
-      
+    <main className="text-[#171717]">
+
       {/* =========================================================
           1. MOBILE TOP HEADER BAR (Visible only on small screens)
          ========================================================= */}
       <div className="flex lg:hidden items-center justify-between bg-[#570015] text-white px-5 py-4 sticky top-0 z-30 shadow-md">
         <div className="flex items-center space-x-3">
-          <button 
+          <button
             onClick={() => setIsMobileMenuOpen(true)}
             className="p-2 rounded-md bg-white/10 hover:bg-white/20 transition focus:outline-none cursor-pointer"
             aria-label="Open Menu"
@@ -62,11 +64,11 @@ export default function LecturerDashboard() {
       {isMobileMenuOpen && (
         <div className="fixed inset-0 z-50 flex lg:hidden">
           {/* Backdrop overlay */}
-          <div 
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity" 
+          <div
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
             onClick={() => setIsMobileMenuOpen(false)}
           />
-          
+
           {/* Drawer Content */}
           <div className="relative w-[260px] bg-[#570015] px-5 py-7 text-white flex flex-col shadow-2xl z-10 animate-in slide-in-from-left duration-200">
             <div className="flex items-center justify-between mb-10 border-b border-white/15 pb-4">
@@ -74,7 +76,7 @@ export default function LecturerDashboard() {
                 <p className="text-lg font-bold tracking-wide">ABUAD</p>
                 <p className="mt-0.5 text-xs text-white/65">Lecturer Portal</p>
               </div>
-              <button 
+              <button
                 onClick={() => setIsMobileMenuOpen(false)}
                 className="p-1 rounded-full hover:bg-white/10 text-white/80 hover:text-white text-xl font-bold cursor-pointer"
               >
@@ -83,13 +85,13 @@ export default function LecturerDashboard() {
             </div>
 
             <nav className="space-y-2 text-sm">
-              <a href="#overview" onClick={() => setIsMobileMenuOpen(false)} className="block rounded-md bg-white/12 px-3 py-3 font-semibold">Dashboard</a>
-              <a href="#courses" onClick={() => setIsMobileMenuOpen(false)} className="block rounded-md px-3 py-3 text-white/75 hover:bg-white/10 transition">My Courses</a>
-              <a href="#sessions" onClick={() => setIsMobileMenuOpen(false)} className="block rounded-md px-3 py-3 text-white/75 hover:bg-white/10 transition">Attendance Sessions</a>
+              <Link href="#overview" onClick={() => setIsMobileMenuOpen(false)} className="block rounded-md bg-white/12 px-3 py-3 font-semibold">Dashboard</Link>
+              <Link href="#courses" onClick={() => setIsMobileMenuOpen(false)} className="block rounded-md px-3 py-3 text-white/75 hover:bg-white/10 transition">My Courses</Link>
+              <Link href="#sessions" onClick={() => setIsMobileMenuOpen(false)} className="block rounded-md px-3 py-3 text-white/75 hover:bg-white/10 transition">Attendance Sessions</Link>
             </nav>
 
-            <button 
-              onClick={() => router.replace('/login/lecturer')} 
+            <button
+              onClick={() => router.replace('/login/lecturer')}
               className="mt-auto rounded-md border border-white/25 px-3 py-2.5 text-left text-sm text-white/85 transition hover:bg-white/10 cursor-pointer"
             >
               Sign out
@@ -107,12 +109,12 @@ export default function LecturerDashboard() {
           <p className="mt-1 text-xs text-white/65">Lecturer Portal</p>
         </div>
         <nav className="space-y-2 text-sm">
-          <a href="#overview" className="block rounded-md bg-white/12 px-3 py-3 font-semibold">Dashboard</a>
-          <a href="#courses" className="block rounded-md px-3 py-3 text-white/75 hover:bg-white/10 transition">My Courses</a>
-          <a href="#sessions" className="block rounded-md px-3 py-3 text-white/75 hover:bg-white/10 transition">Attendance Sessions</a>
+          <Link href="#overview" className="block rounded-md bg-white/12 px-3 py-3 font-semibold">Dashboard</Link>
+          <Link href="#courses" className="block rounded-md px-3 py-3 text-white/75 hover:bg-white/10 transition">My Courses</Link>
+          <Link href="#sessions" className="block rounded-md px-3 py-3 text-white/75 hover:bg-white/10 transition">Attendance Sessions</Link>
         </nav>
-        <button 
-          onClick={() => router.replace('/login/lecturer')} 
+        <button
+          onClick={() => router.replace('/login/lecturer')}
           className="mt-auto rounded-md border border-white/25 px-3 py-2.5 text-left text-sm text-white/85 transition hover:bg-white/10 cursor-pointer"
         >
           Sign out
@@ -123,7 +125,7 @@ export default function LecturerDashboard() {
           4. MAIN CONTENT AREA
          ========================================================= */}
       <div className="min-h-screen lg:ml-[205px]">
-        
+
         {/* Top Header Bar (Desktop Only) */}
         <header className="hidden lg:flex min-h-[76px] items-center justify-between border-b border-[#e9e3d8] bg-white/90 backdrop-blur-md px-5 sm:px-8 lg:px-10 sticky top-0 z-10">
           <div>
@@ -135,8 +137,8 @@ export default function LecturerDashboard() {
               <p className="text-sm font-semibold">{lecturerName}</p>
               <p className="mt-0.5 text-xs text-[#746d68]">{lecturerEmail}</p>
             </div>
-            <button 
-              onClick={() => router.replace('/login/lecturer')} 
+            <button
+              onClick={() => router.replace('/login/lecturer')}
               className="rounded-md border border-[#ead9d5] px-3 py-2 text-xs font-semibold text-[#650019] transition hover:bg-[#fbf4f2] cursor-pointer"
             >
               Sign out
@@ -146,7 +148,7 @@ export default function LecturerDashboard() {
 
         {/* Dashboard Body Container */}
         <div className="mx-auto max-w-[1440px] space-y-9 px-5 py-7 sm:px-8 lg:px-10">
-          
+
           {/* Overview Banner */}
           <section id="overview" className="flex flex-col items-start justify-between gap-5 rounded-lg bg-[#590018] p-7 text-white shadow-sm sm:flex-row sm:items-center">
             <div>
@@ -168,8 +170,8 @@ export default function LecturerDashboard() {
                 <h2 className="mt-4 text-3xl font-bold tracking-widest text-[#145b46]">CODE: {sessionCode}</h2>
                 <p className="mt-2 text-sm text-[#43534c]">Geofence radius: <span className="font-semibold">{radiusMeters} meters</span>. Students can now check in.</p>
               </div>
-              <button 
-                onClick={handleEndSession} 
+              <button
+                onClick={handleEndSession}
                 className="rounded-md bg-[#650019] px-5 py-3 text-xs font-bold uppercase tracking-wider text-white transition hover:bg-[#7b1730] cursor-pointer"
               >
                 End attendance session
@@ -195,9 +197,9 @@ export default function LecturerDashboard() {
                   </div>
                   <div className="space-y-4 border-t border-[#eee8df] pt-4">
                     <label className="flex items-center justify-between gap-3 text-sm text-[#746d68]">Geofence radius
-                      <select 
-                        value={radiusMeters} 
-                        onChange={(e) => setRadiusMeters(Number(e.target.value))} 
+                      <select
+                        value={radiusMeters}
+                        onChange={(e) => setRadiusMeters(Number(e.target.value))}
                         className="rounded-md border border-[#ddd4ca] bg-white px-3 py-2 text-sm text-[#292323] focus:outline-none focus:ring-2 focus:ring-[#8B1E3F]"
                       >
                         <option value={20}>20 meters (Strict)</option>
@@ -205,9 +207,9 @@ export default function LecturerDashboard() {
                         <option value={100}>100 meters (Wide)</option>
                       </select>
                     </label>
-                    <button 
-                      onClick={() => handleStartSession(course.code)} 
-                      disabled={activeCourse !== null} 
+                    <button
+                      onClick={() => handleStartSession(course.code)}
+                      disabled={activeCourse !== null}
                       className="w-full rounded-md bg-[#650019] py-3 text-xs font-bold uppercase tracking-wider text-white shadow-sm transition hover:bg-[#7b1730] disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"
                     >
                       {activeCourse === course.code ? 'Session in progress' : 'Start attendance session'}
@@ -218,10 +220,6 @@ export default function LecturerDashboard() {
             </div>
           </section>
 
-          {/* Footer */}
-          <footer className="border-t border-[#e9e3d8] py-6 text-center text-xs text-[#817874]">
-            Courtesy of the Dean, College of Medicine &amp; Health Sciences, ABUAD
-          </footer>
         </div>
       </div>
     </main>

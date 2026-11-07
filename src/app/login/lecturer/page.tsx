@@ -1,3 +1,4 @@
+// src/app/lecturer/login/page.tsx
 'use client';
 
 import { useState } from 'react';
@@ -42,7 +43,7 @@ export default function LecturerLoginPage() {
   };
 
   return (
-    <main className="relative min-h-screen flex flex-col justify-between px-3 sm:px-6 py-4 sm:py-6 overflow-x-hidden bg-stone-900 text-stone-100">
+    <main className="relative min-h-[85vh] flex flex-col justify-between px-3 sm:px-6 py-4 sm:py-6 overflow-x-hidden bg-stone-900 text-stone-100">
       
       {/* 1. Background Image Overlay */}
       <div className="absolute inset-0 z-0">
@@ -170,16 +171,7 @@ export default function LecturerLoginPage() {
         </div>
       </section>
 
-      {/* 4. Footer */}
-      <footer className="relative z-10 w-full max-w-7xl mx-auto pt-3 flex flex-col sm:flex-row justify-between items-center gap-2 text-[9px] sm:text-[10px] text-stone-300 font-medium bg-black/40 backdrop-blur-md px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg border border-white/10 shadow-lg text-center sm:text-left">
-        <div>
-          Developed by <span className="font-bold text-white">OJO JOSHUA OLUWAPELUMI</span>
-        </div>
-        <div className="text-center sm:text-right">
-          Courtesy of the Dean,<br />
-          College of Medicine & Health Sciences, ABUAD
-        </div>
-      </footer>
+      {/* Local footer completely removed so the global layout footer handles it cleanly */}
 
     </main>
   );

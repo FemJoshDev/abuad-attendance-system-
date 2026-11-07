@@ -18,7 +18,7 @@ export const authOptions: NextAuthOptions = {
         }
 
         try {
-          // 1. Find user in Neon PostgreSQL via Prisma
+          // 1. Find user in Neon PostgreSQL via Prisma using db client
           const user = await db.user.findUnique({
             where: { email: credentials.email },
           });
@@ -27,7 +27,7 @@ export const authOptions: NextAuthOptions = {
             throw new Error('Invalid email or password.');
           }
 
-          // 2. Verify password using our bcrypt utility
+          // 2. Verify password using bcrypt utility
           const isValidPassword = await verifyPassword(
             credentials.password,
             user.passwordHash
@@ -45,10 +45,8 @@ export const authOptions: NextAuthOptions = {
             role: user.role, // ADMIN, LECTURER, or STUDENT
           };
         } catch (error: any) {
-          // 🛑 Log the detailed database/server crash to your VS Code terminal ONLY
           console.error("AUTH_AUTHORIZE_ERROR:", error.message);
 
-          // 🟢 If Prisma or Neon crashed, don't show the raw stack trace to the user
           if (
             error.message.includes("Can't reach database") || 
             error.message.includes("Authentication failed") ||
@@ -58,7 +56,6 @@ export const authOptions: NextAuthOptions = {
             throw new Error("Unable to connect to the authentication server. Please try again later.");
           }
 
-          // Re-throw user validation messages cleanly ("Invalid email or password", etc.)
           throw new Error(error.message || "An unexpected error occurred.");
         }
       },
@@ -86,7 +83,8 @@ export const authOptions: NextAuthOptions = {
   session: {
     strategy: 'jwt',
   },
-  secret: process.env.NEXTAUTH_SECRET,
+  // Hardcoded fallback secret prevents secret regeneration during hot reloads when .env is re-read
+  secret: process.env.NEXTAUTH_SECRET || 'abuad_secure_attendance_secret_key_2026_xyz',
 };
 
 const handler = NextAuth(authOptions);

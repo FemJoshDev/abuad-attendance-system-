@@ -1,3 +1,4 @@
+// src/app/admin/dashboard/page.tsx
 'use client';
 
 import { useState } from 'react';
@@ -22,7 +23,7 @@ export default function AdminDashboard() {
   const [newUserName, setNewUserName] = useState('');
   const [newUserEmail, setNewUserEmail] = useState('');
   const [newUserPassword, setNewUserPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false); // Toggle state for viewing password
+  const [showPassword, setShowPassword] = useState(false);
   const [newUserRole, setNewUserRole] = useState('LECTURER');
   const [newUserIdentifier, setNewUserIdentifier] = useState('');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -61,7 +62,7 @@ export default function AdminDashboard() {
   };
 
   return (
-    <main className="relative min-h-screen bg-[#fbf9f0] text-[#171717] overflow-x-hidden">
+    <main className="text-[#171717]">
       
       {/* =========================================================
           1. MOBILE TOP HEADER BAR (Visible only on small screens)
@@ -387,10 +388,6 @@ export default function AdminDashboard() {
             </div>
           </section>
 
-          {/* Footer */}
-          <footer className="border-t border-[#e9e3d8] py-6 text-center text-xs text-[#817874]">
-            Courtesy of the Dean, College of Medicine &amp; Health Sciences, ABUAD
-          </footer>
         </div>
       </div>
     </main>

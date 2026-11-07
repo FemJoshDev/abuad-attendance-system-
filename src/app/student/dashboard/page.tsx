@@ -1,288 +1,277 @@
+// src/app/student/dashboard/page.tsx
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import Image from 'next/image';
-import Link from 'next/link';
-
-// Sample data for enrolled courses and metrics
-const courses = [
-  { code: 'MBBS 501', title: 'Anatomy', present: 18, total: 20 },
-  { code: 'MBBS 503', title: 'Physiology', present: 15, total: 20 },
-  { code: 'MBBS 505', title: 'Biochemistry', present: 13, total: 21 },
-];
-
-// Active notifications for student alerts
-const notifications = [
-  { color: 'bg-cyan-700', text: 'MBBS 501 attendance is currently open.' },
-  { color: 'bg-yellow-500', text: 'MBBS 503 attendance closes in 5 minutes.' },
-  { color: 'bg-[#650019]', text: 'Your Biochemistry attendance is approaching the required threshold.' },
-];
-
-// Historical student attendance logs
-const attendanceHistory = [
-  { id: 1, courseCode: 'MBBS 501', courseTitle: 'Anatomy', date: 'Oct 26, 2026', status: 'Present' },
-  { id: 2, courseCode: 'MBBS 503', courseTitle: 'Physiology', date: 'Oct 24, 2026', status: 'Present' },
-  { id: 3, courseCode: 'MBBS 505', courseTitle: 'Biochemistry', date: 'Oct 22, 2026', status: 'Late' },
-];
+import { useState, useEffect } from 'react';
+import { DashboardData } from '@/types/student';
 
 export default function StudentDashboard() {
-  const router = useRouter();
-  const studentName = 'Afe Babalola Student';
-  const matricNumber = '20/ENG02/001';
-
-  // Mobile drawer state
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  // Dynamic Dashboard States
+  const [data, setData] = useState<DashboardData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   // Complaint Module State
-  const [selectedCourse, setSelectedCourse] = useState('MBBS 501');
+  const [selectedCourse, setSelectedCourse] = useState('');
   const [complaintText, setComplaintText] = useState('');
-  const [complaintsList, setComplaintsList] = useState([
-    { id: 1, course: 'MBBS 505', issue: 'Marked absent due to poor network geofence timeout.', date: 'Oct 22, 2026', status: 'Pending' },
-    { id: 2, course: 'MBBS 503', issue: 'Device location error during session check-in.', date: 'Oct 18, 2026', status: 'Resolved' },
-  ]);
 
-  const handleSubmitComplaint = (e: React.FormEvent) => {
+  // Fetch live student dashboard metrics from backend API on mount
+  useEffect(() => {
+    async function fetchDashboardData() {
+      try {
+        const res = await fetch('/api/student/dashboard');
+        if (!res.ok) throw new Error('Failed to load dashboard data from server.');
+        const json = await res.json();
+        setData(json);
+
+        // Automatically select the student's first registered course if available
+        if (json.courses && json.courses.length > 0) {
+          setSelectedCourse(json.courses[0].code);
+        }
+      } catch (err: any) {
+        setError(err.message || 'An error occurred');
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchDashboardData();
+  }, []);
+
+  const handleSubmitComplaint = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!complaintText.trim()) return;
+    if (!complaintText.trim() || !data) return;
 
-    const newComplaint = {
-      id: complaintsList.length + 1,
-      course: selectedCourse,
-      issue: complaintText,
-      date: 'Oct 28, 2026',
-      status: 'Pending',
-    };
+    try {
+      const res = await fetch('/api/student/complaints', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ course: selectedCourse, issue: complaintText }),
+      });
 
-    setComplaintsList([newComplaint, ...complaintsList]);
-    setComplaintText('');
-    alert('Your attendance complaint has been submitted to the Admin desk!');
+      if (!res.ok) throw new Error('Failed to submit complaint.');
+
+      const newComp = await res.json();
+      setData({
+        ...data,
+        complaintsList: [newComp, ...data.complaintsList],
+      });
+      setComplaintText('');
+      alert('Your attendance complaint has been submitted to the Admin desk!');
+    } catch (err: any) {
+      alert(err.message);
+    }
   };
 
-  return (
-    <main className="relative min-h-screen bg-[#fbf9f0] text-[#171717] overflow-x-hidden">
-      
-      {/* Background Image Layer with subtle opacity over the cream theme */}
-      <div className="absolute inset-0 z-0 pointer-events-none">
-        <Image 
-          src="/ABUAD%20ATTENDANCE.jpg" 
-          alt="ABUAD Background"
-          fill
-          sizes="100vw"
-          priority
-          className="object-cover opacity-45"
-        />
-        <div className="absolute inset-0 bg-[#fbf9f0]/85 backdrop-blur-[3px]" />
+  if (loading) {
+    return (
+      <div className="min-h-[80vh] flex items-center justify-center text-[#590018] font-semibold">
+        Loading live student portal metrics...
       </div>
+    );
+  }
 
-      <div className="relative z-10">
-        
-        {/* =========================================================
-            1. MOBILE TOP HEADER BAR (Visible only on small screens)
-           ========================================================= */}
-        <div className="flex lg:hidden items-center justify-between bg-[#570015] text-white px-5 py-4 sticky top-0 z-30 shadow-md">
-          <div className="flex items-center space-x-3">
-            <button 
-              onClick={() => setIsMobileMenuOpen(true)}
-              className="p-2 rounded-md bg-white/10 hover:bg-white/20 transition focus:outline-none cursor-pointer"
-              aria-label="Open Menu"
-            >
-              {/* Hamburger Icon */}
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-              </svg>
-            </button>
-            <div>
-              <p className="text-sm font-bold tracking-wide">ABUAD Portal</p>
-              <p className="text-[10px] text-white/70">Student Navigation</p>
+  if (error || !data) {
+    return (
+      <div className="min-h-[80vh] flex flex-col items-center justify-center text-[#590018] gap-4">
+        <p>Error: {error || 'Unable to retrieve records.'}</p>
+        <button onClick={() => window.location.reload()} className="px-4 py-2 bg-[#590018] text-white rounded-md text-xs cursor-pointer">
+          Retry
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <main className="text-[#171717]">
+
+      {/* Desktop Header Bar */}
+      <header className="hidden lg:flex min-h-[76px] items-center justify-between border-b border-[#e9e3d8] bg-white/90 backdrop-blur-md px-5 sm:px-8 lg:px-10 sticky top-0 z-10">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#8a6b67]">Student dashboard</p>
+          <h1 className="mt-1 text-lg font-semibold">College of Medicine &amp; Health Sciences</h1>
+        </div>
+        <div className="hidden text-right sm:block">
+          <p className="text-sm font-semibold">{data.studentName}</p>
+          <p className="mt-0.5 text-xs text-[#746d68]">{data.matricNumber}</p>
+        </div>
+      </header>
+
+      <div className="mx-auto max-w-[1440px] px-5 py-7 sm:px-8 lg:px-10">
+
+        {/* Overview & Notifications Section Grid */}
+        <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_310px]">
+
+          {/* Overall Attendance Summary Card */}
+          <section id="overview" className="scroll-mt-24 rounded-lg bg-[#590018] px-7 py-8 text-white shadow-sm sm:px-8">
+            <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#f0c3ca]">Semester overview</p>
+            <h2 className="mt-3 text-2xl font-medium">Overall Attendance</h2>
+            <p className="mt-7 text-[76px] font-bold leading-none tracking-tight">
+              {data.overallPercentage}<span className="text-[38px] text-[#f2cf00]">%</span>
+            </p>
+            <div className="mt-5 h-[9px] overflow-hidden rounded-full bg-white/20">
+              <div className="h-full rounded-full bg-[#e2bd00]" style={{ width: `${data.overallPercentage}%` }} />
             </div>
-          </div>
-          <div className="text-right">
-            <p className="text-xs font-semibold">{studentName}</p>
-          </div>
+            <div className="mt-5 flex items-center justify-between text-sm">
+              <p><span className="text-lg font-bold text-[#f2cf00]">{data.totalPresent}</span> Present</p>
+              <p><span className="text-lg font-bold text-[#f2cf00]">{data.totalClasses}</span> Total Classes</p>
+            </div>
+            <p className="mt-6 text-sm text-white/90">
+              {data.overallPercentage >= 75 ? 'Above the 75% attendance requirement' : 'Warning: Below 75% requirement'}
+            </p>
+          </section>
+
+          {/* Live Attendance Notifications Panel */}
+          <section className="overflow-hidden rounded-lg border border-[#ead9d5] bg-white/95 backdrop-blur-sm shadow-sm">
+            <div className="border-b border-[#ece6dd] px-6 py-6">
+              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#9a7773]">Stay informed</p>
+              <h2 className="mt-3 text-[25px] font-medium leading-snug">Attendance Notifications</h2>
+            </div>
+            {data.notifications.length === 0 ? (
+              <p className="p-6 text-xs text-[#746d68]">No active sessions or alerts right now.</p>
+            ) : (
+              <ul className="divide-y divide-[#ece6dd]">
+                {data.notifications.map((notification) => (
+                  <li key={notification.id} className="flex gap-3 px-6 py-4 text-sm leading-5">
+                    <span className={`mt-1.5 h-2.5 w-2.5 shrink-0 rounded-full ${notification.color}`} />
+                    <span>{notification.text}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
         </div>
 
-        {/* =========================================================
-            2. MOBILE SLIDE-OUT MENU MODAL (Drawer)
-           ========================================================= */}
-        {isMobileMenuOpen && (
-          <div className="fixed inset-0 z-50 flex lg:hidden">
-            {/* Backdrop overlay */}
-            <div 
-              className="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity" 
-              onClick={() => setIsMobileMenuOpen(false)}
-            />
-            
-            {/* Drawer Content */}
-            <div className="relative w-[260px] bg-[#570015] px-5 py-7 text-white flex flex-col shadow-2xl z-10 animate-in slide-in-from-left duration-200">
-              <div className="flex items-center justify-between mb-10 border-b border-white/15 pb-4">
-                <div>
-                  <p className="text-lg font-bold tracking-wide">ABUAD</p>
-                  <p className="mt-0.5 text-xs text-white/65">Student Portal</p>
-                </div>
-                <button 
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className="p-1 rounded-full hover:bg-white/10 text-white/80 hover:text-white text-xl font-bold cursor-pointer"
-                >
-                  &times;
-                </button>
-              </div>
-
-              <nav className="space-y-2 text-sm">
-                <button onClick={() => { router.push('/student/dashboard#overview'); setIsMobileMenuOpen(false); }} className="w-full text-left rounded-md bg-white/12 px-3 py-3 font-semibold cursor-pointer">Dashboard</button>
-                <button onClick={() => { router.push('/student/courses'); setIsMobileMenuOpen(false); }} className="w-full text-left rounded-md px-3 py-3 text-white/75 hover:bg-white/10 transition cursor-pointer">My Courses</button>
-                <button onClick={() => { router.push('/student/attendance'); setIsMobileMenuOpen(false); }} className="w-full text-left rounded-md px-3 py-3 text-white/75 hover:bg-white/10 transition cursor-pointer">Attendance History</button>
-                <button onClick={() => { router.push('/student/complaints'); setIsMobileMenuOpen(false); }} className="w-full text-left rounded-md px-3 py-3 text-white/75 hover:bg-white/10 transition cursor-pointer">Complaints &amp; Disputes</button>
-                <button onClick={() => { router.push('/student/settings'); setIsMobileMenuOpen(false); }} className="w-full text-left rounded-md px-3 py-3 text-white/75 hover:bg-white/10 transition cursor-pointer">Settings</button>
-              </nav>
-
-              <button 
-                onClick={() => router.push('/login')} 
-                className="mt-auto rounded-md border border-white/25 px-3 py-2.5 text-left text-sm text-white/85 transition hover:bg-white/10 cursor-pointer"
-              >
-                Sign out
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* =========================================================
-            3. DESKTOP FIXED SIDEBAR (Hidden on mobile, visible on lg+)
-           ========================================================= */}
-        <aside className="fixed inset-y-0 left-0 z-20 hidden w-[205px] flex-col bg-[#570015] px-5 py-7 text-white lg:flex shadow-xl">
-          <div className="mb-12 border-b border-white/15 pb-6">
-            <p className="text-lg font-bold tracking-wide">ABUAD</p>
-            <p className="mt-1 text-xs text-white/65">Student Portal</p>
-          </div>
-          <nav className="space-y-2 text-sm">
-            <Link className="block rounded-md bg-white/12 px-3 py-3 font-semibold" href="/student/dashboard#overview">Dashboard</Link>
-            <Link className="block rounded-md px-3 py-3 text-white/75 hover:bg-white/10 transition" href="/student/courses">My Courses</Link>
-            <Link className="block rounded-md px-3 py-3 text-white/75 hover:bg-white/10 transition" href="/student/attendance">Attendance History</Link>
-            <Link className="block rounded-md px-3 py-3 text-white/75 hover:bg-white/10 transition" href="/student/complaints">Complaints &amp; Disputes</Link>
-            <Link className="block rounded-md px-3 py-3 text-white/75 hover:bg-white/10 transition" href="/student/settings">Settings</Link>
-          </nav>
-          <button onClick={() => router.push('/login')} className="mt-auto rounded-md border border-white/25 px-3 py-2.5 text-left text-sm text-white/85 transition hover:bg-white/10 cursor-pointer">
-            Sign out
-          </button>
-        </aside>
-
-        {/* =========================================================
-            4. MAIN CONTENT AREA OFFSET BY SIDEBAR WIDTH
-           ========================================================= */}
-        <div className="min-h-screen lg:ml-[205px]">
-          
-          {/* Top Header Bar */}
-          <header className="hidden lg:flex min-h-[76px] items-center justify-between border-b border-[#e9e3d8] bg-white/90 backdrop-blur-md px-5 sm:px-8 lg:px-10 sticky top-0 z-10">
+        {/* My Courses Section */}
+        <section id="courses" className="mt-12 scroll-mt-24">
+          <div className="mb-5 flex flex-wrap items-end justify-between gap-4">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#8a6b67]">Student dashboard</p>
-              <h1 className="mt-1 text-lg font-semibold">College of Medicine &amp; Health Sciences</h1>
+              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#9a7773]">Academic record</p>
+              <h2 className="mt-3 text-[27px] font-medium">My Courses</h2>
             </div>
-            <div className="hidden text-right sm:block">
-              <p className="text-sm font-semibold">{studentName}</p>
-              <p className="mt-0.5 text-xs text-[#746d68]">{matricNumber}</p>
-            </div>
-          </header>
+          </div>
 
-          {/* Dashboard Body Container */}
-          <div className="mx-auto max-w-[1440px] px-5 py-7 sm:px-8 lg:px-10">
-            
-            {/* Overview & Notifications Section Grid */}
-            <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_310px]">
-              
-              {/* Overall Attendance Summary Card */}
-              <section id="overview" className="scroll-mt-24 rounded-lg bg-[#590018] px-7 py-8 text-white shadow-sm sm:px-8">
-                <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#f0c3ca]">Semester overview</p>
-                <h2 className="mt-3 text-2xl font-medium">Overall Attendance</h2>
-                <p className="mt-7 text-[76px] font-bold leading-none tracking-tight">82<span className="text-[38px] text-[#f2cf00]">%</span></p>
-                <div className="mt-5 h-[9px] overflow-hidden rounded-full bg-white/20">
-                  <div className="h-full w-[82%] rounded-full bg-[#e2bd00]" />
-                </div>
-                <div className="mt-5 flex items-center justify-between text-sm">
-                  <p><span className="text-lg font-bold text-[#f2cf00]">42</span> Present</p>
-                  <p><span className="text-lg font-bold text-[#f2cf00]">51</span> Total Classes</p>
-                </div>
-                <p className="mt-6 text-sm text-white/90">Above the 75% attendance requirement</p>
-              </section>
+          <div className="grid gap-4 md:grid-cols-2">
+            {data.courses.map((course) => {
+              const percentage = course.total > 0 ? Math.round((course.present / course.total) * 100) : 0;
+              return (
+                <article key={course.code} className="rounded-lg border border-[#ead9d5] bg-white/95 backdrop-blur-sm p-5 shadow-[0_2px_6px_rgba(80,30,30,0.06)]">
+                  <div className="flex items-start justify-between gap-4">
+                    <div>
+                      <h3 className="text-base font-semibold text-[#650019]">{course.code}</h3>
+                      <p className="mt-1.5 text-base text-[#514949]">{course.title}</p>
+                    </div>
+                    <p className="text-[34px] font-semibold leading-none text-cyan-800">{percentage}%</p>
+                  </div>
+                  <div className="mt-7 flex items-center justify-between gap-2 text-sm">
+                    <span>{course.present} / {course.total} classes</span>
+                    <span className={percentage >= 75 ? 'text-[#8d7400]' : 'text-[#9c4b2d]'}>
+                      {percentage >= 75 ? 'Good standing' : 'Below requirement'}
+                    </span>
+                  </div>
+                  <div className="mt-2.5 h-[6px] overflow-hidden rounded-full bg-[#e9e7df]">
+                    <div className="h-full rounded-full bg-cyan-800" style={{ width: `${percentage}%` }} />
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+        </section>
 
-              {/* Attendance Notifications Panel */}
-              <section className="overflow-hidden rounded-lg border border-[#ead9d5] bg-white/95 backdrop-blur-sm shadow-sm">
-                <div className="border-b border-[#ece6dd] px-6 py-6">
-                  <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#9a7773]">Stay informed</p>
-                  <h2 className="mt-3 text-[25px] font-medium leading-snug">Attendance Notifications</h2>
-                </div>
-                <ul className="divide-y divide-[#ece6dd]">
-                  {notifications.map((notification) => (
-                    <li key={notification.text} className="flex gap-3 px-6 py-4 text-sm leading-5">
-                      <span className={`mt-1.5 h-2.5 w-2.5 shrink-0 rounded-full ${notification.color}`} />
-                      <span>{notification.text}</span>
-                    </li>
+        {/* Recent Attendance History Table */}
+        <section id="attendance" className="mt-12 scroll-mt-24 rounded-lg border border-[#ead9d5] bg-white/95 backdrop-blur-sm p-6 shadow-sm">
+          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#9a7773]">Attendance record</p>
+          <h2 className="mb-5 mt-2 text-xl font-medium">Recent Attendance History</h2>
+          <div className="w-full overflow-x-auto pb-2">
+            <table className="w-full min-w-[560px] text-left text-sm">
+              <thead>
+                <tr className="border-b border-[#ece6dd] text-[#766c68]">
+                  <th className="pb-3 font-semibold whitespace-nowrap">Course Code</th>
+                  <th className="pb-3 font-semibold whitespace-nowrap">Course Title</th>
+                  <th className="pb-3 font-semibold whitespace-nowrap">Date</th>
+                  <th className="pb-3 text-right font-semibold whitespace-nowrap">Status</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[#f0ece5]">
+                {data.attendanceHistory.map((log) => (
+                  <tr key={log.id}>
+                    <td className="py-4 font-semibold text-[#650019] whitespace-nowrap">{log.courseCode}</td>
+                    <td className="py-4 whitespace-nowrap">{log.courseTitle}</td>
+                    <td className="py-4 text-[#655d58] whitespace-nowrap">{log.date}</td>
+                    <td className="py-4 text-right whitespace-nowrap">
+                      <span className={`rounded-full px-3 py-1 text-xs font-semibold ${log.status === 'Present' ? 'bg-emerald-50 text-emerald-800' : 'bg-amber-50 text-amber-800'}`}>
+                        {log.status}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        {/* Complaints & Disputes Desk */}
+        <section id="complaints" className="mt-12 scroll-mt-24 rounded-lg border border-[#ead9d5] bg-white/95 backdrop-blur-sm p-6 shadow-sm">
+          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#9a7773]">Support Desk</p>
+          <h2 className="mb-2 mt-2 text-xl font-medium">Log Attendance Complaint / Dispute</h2>
+          <p className="text-xs text-[#746d68] mb-6">If you faced location geofence issues or system timeouts during a class, submit details below for administrative review.</p>
+
+          <div className="grid gap-8 lg:grid-cols-3">
+            <form onSubmit={handleSubmitComplaint} className="space-y-4">
+              <div>
+                <label className="block text-xs font-semibold text-[#514949] mb-1">Select Course</label>
+                <select
+                  value={selectedCourse}
+                  onChange={(e) => setSelectedCourse(e.target.value)}
+                  className="w-full px-3 py-2.5 rounded-md border border-[#ead9d5] bg-[#fbf9f0] text-xs font-medium text-[#171717] focus:outline-none focus:ring-2 focus:ring-[#590018]"
+                >
+                  {data.courses.map((c) => (
+                    <option key={c.code} value={c.code}>{c.code} - {c.title}</option>
                   ))}
-                </ul>
-              </section>
-            </div>
-
-            {/* My Courses Section */}
-            <section id="courses" className="mt-12 scroll-mt-24">
-              <div className="mb-5 flex flex-wrap items-end justify-between gap-4">
-                <div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#9a7773]">Academic record</p>
-                  <h2 className="mt-3 text-[27px] font-medium">My Courses</h2>
-                </div>
-                <div className="flex rounded-md bg-[#eeece4] p-1 text-sm">
-                  <button className="rounded bg-[#590018] px-4 py-2.5 font-semibold text-white shadow-sm cursor-pointer">First Semester</button>
-                  <button className="rounded px-4 py-2.5 text-[#57494a] hover:bg-black/5 transition cursor-pointer">Second Semester</button>
-                </div>
+                </select>
               </div>
 
-              {/* Course Cards Grid */}
-              <div className="grid gap-4 md:grid-cols-2">
-                {courses.map((course) => {
-                  const percentage = Math.round((course.present / course.total) * 100);
-                  return (
-                    <article key={course.code} className="rounded-lg border border-[#ead9d5] bg-white/95 backdrop-blur-sm p-5 shadow-[0_2px_6px_rgba(80,30,30,0.06)]">
-                      <div className="flex items-start justify-between gap-4">
-                        <div>
-                          <h3 className="text-base font-semibold text-[#650019]">{course.code}</h3>
-                          <p className="mt-1.5 text-base text-[#514949]">{course.title}</p>
-                        </div>
-                        <p className="text-[34px] font-semibold leading-none text-cyan-800">{percentage}%</p>
-                      </div>
-                      <div className="mt-7 flex items-center justify-between gap-2 text-sm">
-                        <span>{course.present} / {course.total} classes</span>
-                        <span className={percentage >= 75 ? 'text-[#8d7400]' : 'text-[#9c4b2d]'}>{percentage >= 75 ? 'Good standing' : 'Below requirement'}</span>
-                      </div>
-                      <div className="mt-2.5 h-[6px] overflow-hidden rounded-full bg-[#e9e7df]">
-                        <div className="h-full rounded-full bg-cyan-800" style={{ width: `${percentage}%` }} />
-                      </div>
-                    </article>
-                  );
-                })}
+              <div>
+                <label className="block text-xs font-semibold text-[#514949] mb-1">Describe Issue</label>
+                <textarea
+                  rows={3}
+                  value={complaintText}
+                  onChange={(e) => setComplaintText(e.target.value)}
+                  placeholder="e.g. System timed out while verifying device location in Anatomy lecture."
+                  required
+                  className="w-full px-3 py-2 rounded-md border border-[#ead9d5] bg-[#fbf9f0] text-xs text-[#171717] focus:outline-none focus:ring-2 focus:ring-[#590018]"
+                />
               </div>
-            </section>
 
-            {/* Attendance History Table Section */}
-            <section id="attendance" className="mt-12 scroll-mt-24 rounded-lg border border-[#ead9d5] bg-white/95 backdrop-blur-sm p-6 shadow-sm">
-              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#9a7773]">Attendance record</p>
-              <h2 className="mb-5 mt-2 text-xl font-medium">Recent Attendance History</h2>
+              <button
+                type="submit"
+                className="w-full py-2.5 bg-[#590018] hover:bg-[#70001f] text-white text-xs font-bold uppercase tracking-wider rounded-md shadow-sm transition cursor-pointer"
+              >
+                Submit Dispute
+              </button>
+            </form>
+
+            <div className="lg:col-span-2 overflow-hidden">
+              <h3 className="text-sm font-semibold text-[#650019] mb-3">Submitted Complaints History</h3>
               <div className="w-full overflow-x-auto pb-2">
-                <table className="w-full min-w-[560px] text-left text-sm">
+                <table className="w-full min-w-[560px] text-left text-xs">
                   <thead>
                     <tr className="border-b border-[#ece6dd] text-[#766c68]">
-                      <th className="pb-3 font-semibold whitespace-nowrap">Course Code</th>
-                      <th className="pb-3 font-semibold whitespace-nowrap">Course Title</th>
-                      <th className="pb-3 font-semibold whitespace-nowrap">Date</th>
+                      <th className="pb-3 font-semibold whitespace-nowrap">Course</th>
+                      <th className="pb-3 font-semibold whitespace-nowrap">Issue Details</th>
+                      <th className="pb-3 font-semibold whitespace-nowrap">Date Submitted</th>
                       <th className="pb-3 text-right font-semibold whitespace-nowrap">Status</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-[#f0ece5]">
-                    {attendanceHistory.map((log) => (
-                      <tr key={log.id}>
-                        <td className="py-4 font-semibold text-[#650019] whitespace-nowrap">{log.courseCode}</td>
-                        <td className="py-4 whitespace-nowrap">{log.courseTitle}</td>
-                        <td className="py-4 text-[#655d58] whitespace-nowrap">{log.date}</td>
-                        <td className="py-4 text-right whitespace-nowrap">
-                          <span className={`rounded-full px-3 py-1 text-xs font-semibold ${log.status === 'Present' ? 'bg-emerald-50 text-emerald-800' : 'bg-amber-50 text-amber-800'}`}>
-                            {log.status}
+                    {data.complaintsList.map((comp) => (
+                      <tr key={comp.id}>
+                        <td className="py-3.5 font-semibold text-[#650019] whitespace-nowrap">{comp.course}</td>
+                        <td className="py-3.5 text-[#514949] max-w-[200px] truncate">{comp.issue}</td>
+                        <td className="py-3.5 text-[#655d58] whitespace-nowrap">{comp.date}</td>
+                        <td className="py-3.5 text-right whitespace-nowrap">
+                          <span className={`rounded-full px-2.5 py-1 text-[10px] font-semibold ${comp.status === 'Resolved' ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' : 'bg-amber-50 text-amber-800 border border-amber-200'
+                            }`}>
+                            {comp.status}
                           </span>
                         </td>
                       </tr>
@@ -290,106 +279,10 @@ export default function StudentDashboard() {
                   </tbody>
                 </table>
               </div>
-            </section>
-
-            {/* Attendance Complaints & Disputes Desk */}
-            <section id="complaints" className="mt-12 scroll-mt-24 rounded-lg border border-[#ead9d5] bg-white/95 backdrop-blur-sm p-6 shadow-sm">
-              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#9a7773]">Support Desk</p>
-              <h2 className="mb-2 mt-2 text-xl font-medium">Log Attendance Complaint / Dispute</h2>
-              <p className="text-xs text-[#746d68] mb-6">If you faced location geofence issues or system timeouts during a class, submit details below for administrative review.</p>
-
-              <div className="grid gap-8 lg:grid-cols-3">
-                {/* Submit New Complaint Form */}
-                <form onSubmit={handleSubmitComplaint} className="space-y-4">
-                  <div>
-                    <label className="block text-xs font-semibold text-[#514949] mb-1">Select Course</label>
-                    <select 
-                      value={selectedCourse} 
-                      onChange={(e) => setSelectedCourse(e.target.value)}
-                      className="w-full px-3 py-2.5 rounded-md border border-[#ead9d5] bg-[#fbf9f0] text-xs font-medium text-[#171717] focus:outline-none focus:ring-2 focus:ring-[#590018]"
-                    >
-                      {courses.map((c) => (
-                        <option key={c.code} value={c.code}>{c.code} - {c.title}</option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-semibold text-[#514949] mb-1">Describe Issue</label>
-                    <textarea 
-                      rows={3}
-                      value={complaintText}
-                      onChange={(e) => setComplaintText(e.target.value)}
-                      placeholder="e.g. System timed out while verifying device location in Anatomy lecture."
-                      required
-                      className="w-full px-3 py-2 rounded-md border border-[#ead9d5] bg-[#fbf9f0] text-xs text-[#171717] focus:outline-none focus:ring-2 focus:ring-[#590018]"
-                    />
-                  </div>
-
-                  <button 
-                    type="submit"
-                    className="w-full py-2.5 bg-[#590018] hover:bg-[#70001f] text-white text-xs font-bold uppercase tracking-wider rounded-md shadow-sm transition cursor-pointer"
-                  >
-                    Submit Dispute
-                  </button>
-                </form>
-
-                {/* Complaint History Table with Horizontal Scroll Fix */}
-                <div className="lg:col-span-2 overflow-hidden">
-                  <h3 className="text-sm font-semibold text-[#650019] mb-3">Submitted Complaints History</h3>
-                  <div className="w-full overflow-x-auto pb-2">
-                    <table className="w-full min-w-[560px] text-left text-xs">
-                      <thead>
-                        <tr className="border-b border-[#ece6dd] text-[#766c68]">
-                          <th className="pb-3 font-semibold whitespace-nowrap">Course</th>
-                          <th className="pb-3 font-semibold whitespace-nowrap">Issue Details</th>
-                          <th className="pb-3 font-semibold whitespace-nowrap">Date Submitted</th>
-                          <th className="pb-3 text-right font-semibold whitespace-nowrap">Status</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-[#f0ece5]">
-                        {complaintsList.map((comp) => (
-                          <tr key={comp.id}>
-                            <td className="py-3.5 font-semibold text-[#650019] whitespace-nowrap">{comp.course}</td>
-                            <td className="py-3.5 text-[#514949] max-w-[200px] truncate">{comp.issue}</td>
-                            <td className="py-3.5 text-[#655d58] whitespace-nowrap">{comp.date}</td>
-                            <td className="py-3.5 text-right whitespace-nowrap">
-                              <span className={`rounded-full px-2.5 py-1 text-[10px] font-semibold ${
-                                comp.status === 'Resolved' ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' : 'bg-amber-50 text-amber-800 border border-amber-200'
-                              }`}>
-                                {comp.status}
-                              </span>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              </div>
-            </section>
-
-            <section id="profile" className="mt-12 scroll-mt-24 rounded-lg border border-[#ead9d5] bg-white/95 backdrop-blur-sm p-6 shadow-sm">
-              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#9a7773]">Account</p>
-              <h2 className="mb-5 mt-2 text-xl font-medium">Student Profile &amp; Settings</h2>
-              <dl className="grid gap-4 text-sm sm:grid-cols-2">
-                <div>
-                  <dt className="text-xs font-semibold text-[#746d68]">Student name</dt>
-                  <dd className="mt-1 font-medium">{studentName}</dd>
-                </div>
-                <div>
-                  <dt className="text-xs font-semibold text-[#746d68]">Matric number</dt>
-                  <dd className="mt-1 font-medium">{matricNumber}</dd>
-                </div>
-              </dl>
-            </section>
-
-            {/* Footer */}
-            <footer className="py-7 text-center text-xs text-[#817874]">
-              Courtesy of the Dean, College of Medicine &amp; Health Sciences, ABUAD
-            </footer>
+            </div>
           </div>
-        </div>
+        </section>
+
       </div>
     </main>
   );

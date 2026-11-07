@@ -78,17 +78,6 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* 4. Footer Details */}
-      <footer className="relative z-10 w-full max-w-7xl mx-auto pt-3 flex flex-col sm:flex-row justify-between items-center gap-2 text-[9px] sm:text-[10px] text-stone-300 font-medium bg-black/40 backdrop-blur-md px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg border border-white/10 shadow-lg text-center sm:text-left">
-        <div>
-          Developed by <span className="font-bold text-white">OJO JOSHUA OLUWAPELUMI</span>
-        </div>
-        <div className="text-center sm:text-right">
-          Courtesy of the Dean,<br />
-          College of Medicine & Health Sciences, ABUAD
-        </div>
-      </footer>
-
       {/* 5. Role Gateway Selection Modal */}
       {showRoleModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md transition-opacity">

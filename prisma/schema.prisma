@@ -14,16 +14,12 @@ model User {
   passwordHash       String
   fullName           String
   role               Role               @default(STUDENT)
-  
-  // Academic Profile Metadata
-  level              Level?             // Optional for LECTURER / ADMIN, required for STUDENT
-  department         String?            // e.g. "Medicine & Surgery"
-  college            String?            // e.g. "College of Medicine & Health Sciences"
-  
   avatarUrl          String?
   createdAt          DateTime           @default(now())
   updatedAt          DateTime           @updatedAt
-  
+  college            String?
+  department         String?
+  level              Level?
   attendanceLogs     AttendanceLog[]
   assignedComplaints Complaint[]        @relation("AssignedComplaints")
   filedComplaints    Complaint[]        @relation("FiledComplaints")
@@ -37,21 +33,17 @@ model User {
 
 model Course {
   id                 String              @id @default(cuid())
-  code               String              @unique // e.g. "MBBS 501"
-  title              String              // e.g. "Anatomy V"
+  code               String              @unique
+  title              String
   description        String?
-  units              Int                 @default(3) // Credit units
-  
-  // Placement Filters
-  level              Level               @default(LEVEL_100)
-  semester           Semester            @default(FIRST)
-  department         String?             // e.g. "Medicine & Surgery"
-  
   isActive           Boolean             @default(true)
   createdAt          DateTime            @default(now())
   updatedAt          DateTime            @updatedAt
   lecturerId         String?
-  
+  department         String?
+  level              Level               @default(LEVEL_100)
+  semester           Semester            @default(FIRST)
+  units              Int                 @default(3)
   attendanceSessions AttendanceSession[]
   complaints         Complaint[]
   lecturer           User?               @relation("LecturerCourses", fields: [lecturerId], references: [id])
