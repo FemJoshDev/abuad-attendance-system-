@@ -2,6 +2,7 @@
 'use client';
 
 import { useState } from 'react';
+import { signIn } from 'next-auth/react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -21,16 +22,14 @@ export default function LecturerLoginPage() {
     setLoading(true);
 
     try {
-      const res = await fetch('/api/auth/login/lecturer', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
+      const result = await signIn('lecturer-credentials', {
+        redirect: false,
+        email,
+        password,
       });
 
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.error || 'Failed to sign in.');
+      if (!result || result.error || !result.ok) {
+        throw new Error('Invalid staff email or password.');
       }
 
       // Replace the login page after successful authentication.

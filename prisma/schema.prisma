@@ -1,10 +1,10 @@
-generator client {
-  provider = "prisma-client-js"
-}
-
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
 }
 
 model User {
@@ -39,17 +39,15 @@ model Course {
   isActive           Boolean             @default(true)
   createdAt          DateTime            @default(now())
   updatedAt          DateTime            @updatedAt
-  lecturerId         String?
   department         String?
   level              Level               @default(LEVEL_100)
   semester           Semester            @default(FIRST)
   units              Int                 @default(3)
   attendanceSessions AttendanceSession[]
   complaints         Complaint[]
-  lecturer           User?               @relation("LecturerCourses", fields: [lecturerId], references: [id])
+  lecturers          User[]              @relation("LecturerCourses")
   enrollments        CourseEnrollment[]
 
-  @@index([lecturerId])
   @@index([level, semester])
 }
 

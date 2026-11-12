@@ -12,6 +12,10 @@ export async function GET() {
       return NextResponse.json({ error: 'Unauthorized access.' }, { status: 401 });
     }
 
+    if ((session.user as any).role !== 'STUDENT') {
+      return NextResponse.json({ error: 'Unauthorized access.' }, { status: 403 });
+    }
+
     // 2. Retrieve student record with the correct Prisma relation names
     const student: any = await (db.user as any).findUnique({
       where: { email: session.user.email },

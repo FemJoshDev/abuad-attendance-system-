@@ -1,3 +1,4 @@
+// src/app/api/auth/[...nextauth]/route.ts
 import NextAuth from 'next-auth';
 import type { NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
@@ -6,6 +7,7 @@ import { verifyPassword } from '@/lib/auth';
 
 export const authOptions: NextAuthOptions = {
   providers: [
+    // 1. Student Credentials Provider (Default)
     CredentialsProvider({
       name: 'Credentials',
       credentials: {
@@ -18,16 +20,14 @@ export const authOptions: NextAuthOptions = {
         }
 
         try {
-          // 1. Find user in Neon PostgreSQL via Prisma using db client
           const user = await db.user.findUnique({
-            where: { email: credentials.email },
+            where: { email: credentials.email.trim().toLowerCase() },
           });
 
           if (!user || !user.passwordHash) {
             throw new Error('Invalid email or password.');
           }
 
-          // 2. Verify password using bcrypt utility
           const isValidPassword = await verifyPassword(
             credentials.password,
             user.passwordHash
@@ -37,27 +37,109 @@ export const authOptions: NextAuthOptions = {
             throw new Error('Invalid email or password.');
           }
 
-          // 3. Return user object if authentication succeeds
+          // Restrict default credentials provider strictly to students
+          if (user.role !== 'STUDENT') {
+            throw new Error('Invalid email or password.');
+          }
+
           return {
             id: user.id,
             email: user.email,
             name: user.fullName,
-            role: user.role, // ADMIN, LECTURER, or STUDENT
+            role: user.role,
           };
         } catch (error: any) {
-          console.error("AUTH_AUTHORIZE_ERROR:", error.message);
+          console.error('AUTH_AUTHORIZE_ERROR:', error.message);
 
           if (
-            error.message.includes("Can't reach database") || 
-            error.message.includes("Authentication failed") ||
-            error.message.includes("Timed out") ||
-            error.message.includes("invocation")
+            error.message.includes("Can't reach database") ||
+            error.message.includes('Authentication failed') ||
+            error.message.includes('Timed out') ||
+            error.message.includes('invocation')
           ) {
-            throw new Error("Unable to connect to the authentication server. Please try again later.");
+            throw new Error('Unable to connect to the authentication server. Please try again later.');
           }
 
-          throw new Error(error.message || "An unexpected error occurred.");
+          throw new Error(error.message || 'An unexpected error occurred.');
         }
+      },
+    }),
+
+    // 2. Lecturer Credentials Provider
+    CredentialsProvider({
+      id: 'lecturer-credentials',
+      name: 'Lecturer Credentials',
+      credentials: {
+        email: { label: 'Email', type: 'email' },
+        password: { label: 'Password', type: 'password' },
+      },
+      async authorize(credentials) {
+        if (!credentials?.email || !credentials?.password) {
+          throw new Error('Invalid staff email or password.');
+        }
+
+        const user = await db.user.findUnique({
+          where: { email: credentials.email.trim().toLowerCase() },
+        });
+
+        if (!user?.passwordHash || user.role !== 'LECTURER') {
+          throw new Error('Invalid staff email or password.');
+        }
+
+        const isValidPassword = await verifyPassword(
+          credentials.password,
+          user.passwordHash
+        );
+
+        if (!isValidPassword) {
+          throw new Error('Invalid staff email or password.');
+        }
+
+        return {
+          id: user.id,
+          email: user.email,
+          name: user.fullName,
+          role: user.role,
+        };
+      },
+    }),
+
+    // 3. Admin Credentials Provider
+    CredentialsProvider({
+      id: 'admin-credentials',
+      name: 'Admin Credentials',
+      credentials: {
+        email: { label: 'Email', type: 'email' },
+        password: { label: 'Password', type: 'password' },
+      },
+      async authorize(credentials) {
+        if (!credentials?.email || !credentials?.password) {
+          throw new Error('Invalid admin email or password.');
+        }
+
+        const user = await db.user.findUnique({
+          where: { email: credentials.email.trim().toLowerCase() },
+        });
+
+        if (!user?.passwordHash || user.role !== 'ADMIN') {
+          throw new Error('Invalid admin email or password.');
+        }
+
+        const isValidPassword = await verifyPassword(
+          credentials.password,
+          user.passwordHash
+        );
+
+        if (!isValidPassword) {
+          throw new Error('Invalid admin email or password.');
+        }
+
+        return {
+          id: user.id,
+          email: user.email,
+          name: user.fullName,
+          role: user.role,
+        };
       },
     }),
   ],
@@ -66,6 +148,7 @@ export const authOptions: NextAuthOptions = {
       if (user) {
         token.role = (user as any).role;
         token.id = user.id;
+        token.name = user.name;
       }
       return token;
     },
@@ -73,6 +156,7 @@ export const authOptions: NextAuthOptions = {
       if (session.user) {
         (session.user as any).role = token.role;
         (session.user as any).id = token.id;
+        session.user.name = token.name as string;
       }
       return session;
     },
@@ -83,7 +167,6 @@ export const authOptions: NextAuthOptions = {
   session: {
     strategy: 'jwt',
   },
-  // Hardcoded fallback secret prevents secret regeneration during hot reloads when .env is re-read
   secret: process.env.NEXTAUTH_SECRET || 'abuad_secure_attendance_secret_key_2026_xyz',
 };
 

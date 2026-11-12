@@ -2,6 +2,7 @@
 'use client';
 
 import { useState } from 'react';
+import { signIn } from 'next-auth/react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -11,7 +12,7 @@ export default function AdminLoginPage() {
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false); // Toggle state for password visibility
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -21,20 +22,17 @@ export default function AdminLoginPage() {
     setLoading(true);
 
     try {
-      const res = await fetch('/api/auth/login/admin', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
+      const result = await signIn('admin-credentials', {
+        redirect: false,
+        email,
+        password,
       });
 
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.error || 'Failed to sign in.');
+      if (!result || result.error || !result.ok) {
+        throw new Error('Invalid admin email or password.');
       }
 
-      // Route to Admin Dashboard on successful authentication
-      router.push('/admin/dashboard');
+      router.replace('/admin/dashboard');
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -43,7 +41,7 @@ export default function AdminLoginPage() {
   };
 
   return (
-    <main className="relative min-h-[85vh] flex flex-col justify-between px-3 sm:px-6 py-4 sm:py-6 overflow-x-hidden bg-stone-900 text-stone-100">
+    <main className="relative min-h-[100vh] flex flex-col justify-between px-3 sm:px-6 py-4 sm:py-6 overflow-x-hidden bg-stone-900 text-stone-100">
       
       {/* 1. Background Image Overlay */}
       <div className="absolute inset-0 z-0">
@@ -171,8 +169,7 @@ export default function AdminLoginPage() {
         </div>
       </section>
 
-      {/* Local footer completely removed */}
-
+      <div />
     </main>
   );
 }

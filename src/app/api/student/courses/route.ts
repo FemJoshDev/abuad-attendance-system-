@@ -50,7 +50,7 @@ export async function GET() {
         ],
       },
       include: {
-        lecturer: true,
+        lecturers: true, // Updated from 'lecturer' to match the multi-lecturer schema relation
         attendanceSessions: {
           include: {
             logs: {
@@ -76,12 +76,15 @@ export async function GET() {
         return studentLog ? acc + 1 : acc;
       }, 0);
 
+      // Join multiple lecturer names or fallback
+      const lecturerName = (course.lecturers || []).map((l: any) => l.fullName).join(', ') || 'Department Faculty';
+
       return {
         id: course.id,
         code: course.code,
         title: course.title,
         semester: formatSemester(course.semester),
-        lecturer: course.lecturer?.fullName || 'Assigned Lecturer',
+        lecturer: lecturerName,
         units: course.units,
         status: isEnrolled ? 'Enrolled' : 'Available',
         present: presentCount,

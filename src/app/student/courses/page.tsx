@@ -35,6 +35,67 @@ export default function StudentCoursesPage() {
     fetchCourses();
   }, []);
 
+  // Handle Student Real-Time Live GPS Attendance Check-In
+  const handleStudentCheckIn = async (courseId: number, courseCode: string) => {
+    if (!navigator.geolocation) {
+      alert('Geolocation is not supported by your browser.');
+      return;
+    }
+
+    // Strict options: maximumAge: 0 forces fresh GPS acquisition without using cached positions
+    const geoOptions = {
+      enableHighAccuracy: true,
+      timeout: 10000,
+      maximumAge: 0,
+    };
+
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const { latitude, longitude } = position.coords;
+
+        try {
+          const res = await fetch('/api/student/attendance/check-in', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              courseId,
+              latitude,
+              longitude,
+            }),
+          });
+
+          const data = await res.json();
+          if (res.ok) {
+            alert(data.message);
+            window.location.reload();
+          } else {
+            alert(data.error || 'Check-in failed.');
+          }
+        } catch (err) {
+          console.error('Network error during check-in', err);
+          alert('Failed to connect to attendance server.');
+        }
+      },
+      (error) => {
+        switch (error.code) {
+          case error.PERMISSION_DENIED:
+            alert('Location permission denied! You must enable GPS location services to mark attendance.');
+            break;
+          case error.POSITION_UNAVAILABLE:
+            alert('Location information is unavailable. Please turn on your device GPS.');
+            break;
+          case error.TIMEOUT:
+            alert('GPS location request timed out. Please move closer to an open window and try again.');
+            break;
+          default:
+            alert('An unknown geolocation error occurred.');
+            break;
+        }
+      },
+      geoOptions
+    );
+  };
+
   // Toggle enrollment status (Select / Drop course via API)
   const handleToggleEnrollment = async (courseId: number, currentStatus: string) => {
     const newStatus = currentStatus === 'Enrolled' ? 'Available' : 'Enrolled';
@@ -184,7 +245,7 @@ export default function StudentCoursesPage() {
                             <div className="h-full rounded-full bg-cyan-800" style={{ width: `${percentage}%` }} />
                           </div>
                           <button
-                            onClick={() => alert(`Opening GPS geofence check-in scanner for ${course.code}...`)}
+                            onClick={() => handleStudentCheckIn(course.id, course.code)}
                             className="w-full rounded-md bg-emerald-700 hover:bg-emerald-800 py-2 text-xs font-bold uppercase tracking-wider text-white transition shadow-sm cursor-pointer animate-pulse"
                           >
                             🔴 Check In Live Session

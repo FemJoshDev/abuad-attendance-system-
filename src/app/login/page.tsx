@@ -34,7 +34,7 @@ export default function LoginPage() {
       // 4. Check if authentication failed on the backend
       const resError = (result as { error?: string } | null)?.error;
       if (resError) {
-        setError(resError); // Display the error message thrown by our backend
+        setError('Invalid email or password.');
         setIsLoading(false);    // Turn off loading state
       } else {
         // Replace the login entry so Back does not return to the sign-in form.
