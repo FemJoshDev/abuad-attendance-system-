@@ -84,7 +84,8 @@ export async function GET() {
       activeSessions = await db.attendanceSession.findMany({
         where: {
           courseId: { in: enrolledCourseIds },
-          status: 'ACTIVE',
+          // FIXED: Replaced status: 'ACTIVE' with isOpen: true to match Prisma boolean schema
+          isOpen: true,
         },
         include: {
           course: true,

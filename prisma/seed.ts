@@ -50,7 +50,11 @@ async function main() {
     data: {
       code: 'CSC 401',
       title: 'Software Engineering Principles',
-      lecturerId: lecturer.id,
+      // UPDATED: Replaced single `lecturerId: lecturer.id` with Prisma's many-to-many `connect` syntax
+      // because Course now supports multiple lecturers (`lecturers User[]`).
+      lecturers: {
+        connect: [{ id: lecturer.id }],
+      },
     },
   });
 
