@@ -161,6 +161,7 @@ export default function AdminLoginPage() {
             <button
               type="submit"
               disabled={loading}
+              suppressHydrationWarning
               className="w-full py-3 bg-[#5A0B1B] hover:bg-[#7A1226] text-white font-bold text-xs tracking-wider uppercase rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 border border-red-500/30 disabled:opacity-50 cursor-pointer mt-2"
             >
               {loading ? 'Verifying Admin Access...' : 'Sign In to Control Panel'}
